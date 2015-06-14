@@ -1,0 +1,11 @@
+dependencies {
+	compile "org.slf4j:slf4j-api:${slf4jVersion}"
+	compile "io.ratpack:ratpack-core:${ratpackVersion}"
+	compile "io.ratpack:ratpack-guice:${ratpackVersion}"
+
+	testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+	testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
+	testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+	testRuntime 'cglib:cglib-nodep:2.2.2'
+	testRuntime 'org.objenesis:objenesis:1.2'
+}

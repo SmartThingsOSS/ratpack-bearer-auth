@@ -12,14 +12,14 @@ public class BearerTokenAuthHandler implements Handler {
 
 	TokenValidator validator;
 
-	BearerTokenAuthHandler(TokenValidator validator) {
+	public BearerTokenAuthHandler(TokenValidator validator) {
 		this.validator = validator;
 	}
 
 	@Override
 	public void handle(Context ctx) throws Exception {
 		String authHeader = ctx.getRequest().getHeaders().get(HttpHeaderNames.AUTHORIZATION);
-		if (authHeader.startsWith("Bearer")) {
+		if (authHeader != null && authHeader.startsWith("Bearer")) {
 			//Confirm token is valid
 			List<String> parts = Arrays.asList(authHeader.trim().split(" "));
 			if (parts.size() == 2) {

@@ -1,14 +1,17 @@
 package st.ratpack.auth;
 
 import com.google.inject.Inject;
+import com.google.inject.ProvidedBy;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.exec.ExecControl;
 import ratpack.exec.Promise;
+import ratpack.http.HttpUrlBuilder;
 import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
 
+import java.net.URI;
 import java.util.Base64;
 
 public class SpringSecCheckTokenValidator implements TokenValidator {
@@ -28,7 +31,14 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	@Override
 	public Promise<Boolean> validate(String token) {
 
-		Promise<ReceivedResponse> resp = httpClient.get(config.host, rs -> {
+		URI uri = HttpUrlBuilder.base(config.host)
+			.path("/oauth/check_token")
+			.params("token", token)
+			.build();
+
+
+		Promise<ReceivedResponse> resp = httpClient.get(uri, rs -> {
+			rs.redirects(0);
 			rs.headers(headers -> {
 				headers.add(HttpHeaderNames.AUTHORIZATION, buildBasicAuthHeader(config.user, config.password));
 			});
@@ -40,7 +50,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 				fulfiller.success(false);
 			}).then(response -> {
 				if (response.getStatusCode() != 200) {
-
+					logger.info("Got Status: " + response.getStatusCode());
 					fulfiller.success(false);
 				} else {
 					fulfiller.success(true);
@@ -52,6 +62,6 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 
 	private String buildBasicAuthHeader(String user, String password) {
 		String encodedCreds = Base64.getEncoder().encodeToString((user + ":" + password).getBytes());
-		return "BASIC " + encodedCreds;
+		return "Basic " + encodedCreds;
 	}
 }

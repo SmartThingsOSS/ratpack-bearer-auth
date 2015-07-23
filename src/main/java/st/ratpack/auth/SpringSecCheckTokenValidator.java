@@ -21,7 +21,6 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	private final ExecControl execControl;
 	private static Logger logger = LoggerFactory.getLogger(SpringSecCheckTokenValidator.class);
 
-	@Inject
 	SpringSecCheckTokenValidator(AuthModule.Config config, HttpClient httpClient, ExecControl execControl) {
 		this.httpClient = httpClient;
 		this.config = config;

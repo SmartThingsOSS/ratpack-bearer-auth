@@ -1,7 +1,11 @@
 package st.ratpack.auth;
 
+import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.Singleton;
+import ratpack.exec.ExecControl;
 import ratpack.guice.ConfigurableModule;
+import ratpack.http.client.HttpClient;
 
 import java.net.URI;
 
@@ -9,7 +13,12 @@ public class AuthModule extends ConfigurableModule<AuthModule.Config> {
 
 	@Override
 	protected void configure() {
-		bind(SpringSecCheckTokenValidator.class).in(Scopes.SINGLETON);
+	}
+
+	@Provides
+	@Singleton
+	public TokenValidator tokenValidator(AuthModule.Config config, HttpClient httpClient, ExecControl execControl) {
+		return new SpringSecCheckTokenValidator(config, httpClient, execControl);
 	}
 
 	public static class Config {

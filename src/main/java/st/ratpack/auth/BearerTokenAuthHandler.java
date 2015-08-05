@@ -4,9 +4,11 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import ratpack.exec.Promise;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
+import ratpack.registry.Registry;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class BearerTokenAuthHandler implements Handler {
 
@@ -25,11 +27,11 @@ public class BearerTokenAuthHandler implements Handler {
 			if (parts.size() == 2) {
 				String token = parts.get(1);
 
-				Promise<Boolean> valid = validator.validate(token);
+				Promise<Optional<User>> user = validator.validate(token);
 
-				valid.onError(t -> {sendError(ctx);}).then(v -> {
-					if (v) {
-						ctx.next();
+				user.onError(t -> {sendError(ctx);}).then((Optional<User> u) -> {
+					if (u.isPresent()) {
+						ctx.next(Registry.single(u.get()));
 					} else {
 						sendError(ctx);
 					}

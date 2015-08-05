@@ -39,7 +39,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> harness.promiseOf(true)
+		1 * tokenValidator.validate("Token") >> harness.promiseOf(Optional.of(Mock(User)))
 		result.calledNext
 	}
 
@@ -55,7 +55,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> harness.promiseOf(false)
+		1 * tokenValidator.validate("Token") >> harness.promiseOf(Optional.empty())
 		result.status.code == 401
 	}
 }

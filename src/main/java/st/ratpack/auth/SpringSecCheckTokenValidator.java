@@ -10,9 +10,14 @@ import ratpack.exec.Promise;
 import ratpack.http.HttpUrlBuilder;
 import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
+import ratpack.jackson.Jackson;
+import ratpack.jackson.JsonParseOpts;
+import ratpack.parse.Parse;
+import ratpack.parse.Parser;
 
 import java.net.URI;
 import java.util.Base64;
+import java.util.Optional;
 
 public class SpringSecCheckTokenValidator implements TokenValidator {
 
@@ -28,13 +33,12 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	}
 
 	@Override
-	public Promise<Boolean> validate(String token) {
+	public Promise<Optional<User>> validate(String token) {
 
 		URI uri = HttpUrlBuilder.base(config.host)
 			.path("/oauth/check_token")
 			.params("token", token)
 			.build();
-
 
 		Promise<ReceivedResponse> resp = httpClient.get(uri, rs -> {
 			rs.redirects(0);
@@ -46,13 +50,16 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 		return execControl.promise(fulfiller -> {
 			resp.onError(t -> {
 				logger.error("Failed to check auth token.", t);
-				fulfiller.success(false);
+				fulfiller.success(Optional.<User>empty());
 			}).then(response -> {
 				if (response.getStatusCode() != 200) {
 					logger.info("Got Status: " + response.getStatusCode());
-					fulfiller.success(false);
+					fulfiller.success(Optional.<User>empty());
 				} else {
-					fulfiller.success(true);
+					User user = null;
+					Parse<User, JsonParseOpts> parse = Jackson.fromJson(User.class);
+					user = parse.getOpts().getObjectMapper().readValue(response.getBody().getInputStream(), User.class);
+					fulfiller.success(Optional.ofNullable(user));
 				}
 			});
 

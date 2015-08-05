@@ -1,5 +1,12 @@
 package st.ratpack.auth;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.inject.Inject;
 import com.google.inject.ProvidedBy;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -36,7 +43,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	public Promise<Optional<User>> validate(String token) {
 
 		URI uri = HttpUrlBuilder.base(config.host)
-			.path("/oauth/check_token")
+			.path("oauth/check_token")
 			.params("token", token)
 			.build();
 
@@ -53,12 +60,12 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 				fulfiller.success(Optional.<User>empty());
 			}).then(response -> {
 				if (response.getStatusCode() != 200) {
-					logger.info("Got Status: " + response.getStatusCode());
+					logger.error("Got Status: " + response.getStatusCode());
 					fulfiller.success(Optional.<User>empty());
 				} else {
 					User user = null;
-					Parse<User, JsonParseOpts> parse = Jackson.fromJson(User.class);
-					user = parse.getOpts().getObjectMapper().readValue(response.getBody().getInputStream(), User.class);
+					ObjectMapper objectMapper = getDefaultJackson();
+					user = objectMapper.readValue(response.getBody().getInputStream(), User.class);
 					fulfiller.success(Optional.ofNullable(user));
 				}
 			});
@@ -69,5 +76,18 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	private String buildBasicAuthHeader(String user, String password) {
 		String encodedCreds = Base64.getEncoder().encodeToString((user + ":" + password).getBytes());
 		return "Basic " + encodedCreds;
+	}
+
+	static ObjectMapper getDefaultJackson() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		objectMapper.registerModule(new Jdk7Module());
+		objectMapper.registerModule(new Jdk8Module());
+		objectMapper.registerModule(new GuavaModule());
+		JsonFactory factory = objectMapper.getFactory();
+		factory.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+		factory.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+
+		return objectMapper;
 	}
 }

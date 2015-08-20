@@ -38,13 +38,13 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		}
 
 		when:
-		ExecResult<Optional<User>> result = harness.yield {
+		ExecResult<Optional<OAuthToken>> result = harness.yield {
 			return tokenValidator.validate("fakeToken")
 		}
 
 		then:
 		result.getValueOrThrow().isPresent()
-		result.getValueOrThrow().get().username == "beckje01"
+		result.getValueOrThrow().get().user.get().username == "beckje01"
 
 	}
 

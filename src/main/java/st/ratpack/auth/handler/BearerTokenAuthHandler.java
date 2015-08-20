@@ -1,10 +1,12 @@
-package st.ratpack.auth;
+package st.ratpack.auth.handler;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import ratpack.exec.Promise;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 import ratpack.registry.Registry;
+import st.ratpack.auth.OAuthToken;
+import st.ratpack.auth.TokenValidator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,11 +29,19 @@ public class BearerTokenAuthHandler implements Handler {
 			if (parts.size() == 2) {
 				String token = parts.get(1);
 
-				Promise<Optional<User>> user = validator.validate(token);
+				Promise<Optional<OAuthToken>> user = validator.validate(token);
 
-				user.onError(t -> {sendError(ctx);}).then((Optional<User> u) -> {
-					if (u.isPresent()) {
-						ctx.next(Registry.single(u.get()));
+				user.onError(t -> {sendError(ctx);}).then((Optional<OAuthToken> oAuthToken) -> {
+					if (oAuthToken.isPresent()) {
+						ctx.next(Registry.of(registrySpec -> {
+							OAuthToken authToken = oAuthToken.get();
+							//Add the oauth token object to the registry
+							registrySpec.add(authToken);
+							if (authToken.getUser().isPresent()) {
+								//If we have a user add it to the registry
+								registrySpec.add(authToken.getUser().get());
+							}
+						}));
 					} else {
 						sendError(ctx);
 					}

@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpHeaderNames
 import ratpack.test.exec.ExecHarness
 import spock.lang.Specification
 import spock.lang.Unroll
+import st.ratpack.auth.handler.BearerTokenAuthHandler
 
 import static ratpack.groovy.test.handling.GroovyRequestFixture.handle
 
@@ -31,7 +32,10 @@ class BearerTokenAuthHandlerSpec extends Specification {
 	def "Next handler on Valid token"() {
 		given:
 		def tokenValidator = Mock(TokenValidator)
+		def oAuthToken = new OAuthToken();
+		oAuthToken.setUser(Optional.of(Mock(User)))
 		def harness = ExecHarness.harness()
+
 
 		when:
 		def result = handle(new BearerTokenAuthHandler(tokenValidator)) {
@@ -39,7 +43,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> harness.promiseOf(Optional.of(Mock(User)))
+		1 * tokenValidator.validate("Token") >> harness.promiseOf(Optional.of(oAuthToken))
 		result.calledNext
 	}
 

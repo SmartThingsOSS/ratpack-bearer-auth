@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.google.inject.Inject;
-import com.google.inject.ProvidedBy;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +15,7 @@ import ratpack.exec.Promise;
 import ratpack.http.HttpUrlBuilder;
 import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
-import ratpack.jackson.Jackson;
-import ratpack.jackson.JsonParseOpts;
-import ratpack.parse.Parse;
-import ratpack.parse.Parser;
+import st.ratpack.auth.springsec.CheckTokenResponse;
 
 import java.net.URI;
 import java.util.Base64;
@@ -40,7 +35,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	}
 
 	@Override
-	public Promise<Optional<User>> validate(String token) {
+	public Promise<Optional<OAuthToken>> validate(String token) {
 
 		URI uri = HttpUrlBuilder.base(config.host)
 			.path("oauth/check_token")
@@ -57,16 +52,37 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 		return execControl.promise(fulfiller -> {
 			resp.onError(t -> {
 				logger.error("Failed to check auth token.", t);
-				fulfiller.success(Optional.<User>empty());
+				fulfiller.success(Optional.<OAuthToken>empty());
 			}).then(response -> {
 				if (response.getStatusCode() != 200) {
 					logger.error("Got Status: " + response.getStatusCode());
-					fulfiller.success(Optional.<User>empty());
+					fulfiller.success(Optional.<OAuthToken>empty());
 				} else {
-					User user = null;
-					ObjectMapper objectMapper = getDefaultJackson();
-					user = objectMapper.readValue(response.getBody().getInputStream(), User.class);
-					fulfiller.success(Optional.ofNullable(user));
+					OAuthToken oAuthToken = null;
+
+					ObjectMapper objectMapper = getDefaultJackson(); //TODO pull from context
+
+					CheckTokenResponse tokenResponse = objectMapper.readValue(response.getBody().getInputStream(), CheckTokenResponse.class);
+
+					if (tokenResponse.getClient_id() != null && !(tokenResponse.getClient_id().isEmpty())) {
+						oAuthToken = new OAuthToken();
+
+						oAuthToken.setClientId(oAuthToken.getClientId());
+						oAuthToken.setScopes(oAuthToken.getScopes());
+
+						if (tokenResponse.getUser_name() != null && !(tokenResponse.getUser_name().isEmpty())) {
+							//There is a use so we add an optional user to the token. This won't be there in the case of a client only oauth token.
+							User user = new User();
+							user.setUsername(tokenResponse.getUser_name());
+							user.setAuthorities(tokenResponse.getAuthorities());
+							oAuthToken.setUser(Optional.of(user));
+						} else {
+							oAuthToken.setUser(Optional.<User>empty());
+						}
+
+					}
+
+					fulfiller.success(Optional.ofNullable(oAuthToken));
 				}
 			});
 

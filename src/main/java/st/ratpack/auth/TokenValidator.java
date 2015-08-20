@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface TokenValidator {
 
-	Promise<Optional<User>> validate(String token);
+	Promise<Optional<OAuthToken>> validate(String token);
 
 }

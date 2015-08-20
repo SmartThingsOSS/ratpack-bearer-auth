@@ -1,3 +1,4 @@
 = Ratpack Bearer Auth
 
 image:https://circleci.com/gh/SmartThingsOSS/ratpack-bearer-auth/tree/master.svg?style=svg["Circle CI", link="https://circleci.com/gh/SmartThingsOSS/ratpack-bearer-auth/tree/master"]
+image:http://codecov.io/github/SmartThingsOSS/ratpack-bearer-auth/coverage.svg?branch=master["CodeCov", link="http://codecov.io/github/SmartThingsOSS/ratpack-bearer-auth?branch=master"]

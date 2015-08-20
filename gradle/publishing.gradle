@@ -1,0 +1,30 @@
+apply plugin: "maven-publish"
+
+task sourceJar(type: Jar) {
+  classifier "sources"
+  from sourceSets.main.allJava
+}
+
+if (project.hasProperty('smartThingsArtifactoryUserName')) {
+	publishing {
+		publications {
+			main(MavenPublication) {
+				from components.java
+				artifact sourceJar
+			}
+		}
+		repositories {
+			maven {
+				credentials {
+					username smartThingsArtifactoryUserName
+					password smartThingsArtifactoryPassword
+				}
+				if (version.endsWith('SNAPSHOT')) {
+					url "https://artifactory.smartthings.com/libs-snapshot-local"
+				} else {
+					url "https://artifactory.smartthings.com/libs-release-local"
+				}
+			}
+		}
+	}
+}

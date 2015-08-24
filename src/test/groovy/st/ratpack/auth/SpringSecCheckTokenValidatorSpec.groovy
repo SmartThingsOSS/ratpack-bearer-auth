@@ -44,7 +44,11 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 
 		then:
 		result.getValueOrThrow().isPresent()
-		result.getValueOrThrow().get().user.get().username == "beckje01"
+		with(result.getValueOrThrow().get()) { OAuthToken returnedToken ->
+			returnedToken.user.get().username == "beckje01"
+			returnedToken.scopes.contains("read")
+			returnedToken.clientId == 'clientapp'
+		}
 
 	}
 

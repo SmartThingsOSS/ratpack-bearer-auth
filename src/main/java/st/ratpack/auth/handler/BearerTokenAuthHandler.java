@@ -1,5 +1,6 @@
 package st.ratpack.auth.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import ratpack.exec.Promise;
 import ratpack.handling.Context;

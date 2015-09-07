@@ -1,6 +1,7 @@
 package st.ratpack.auth
 
 import io.netty.handler.codec.http.HttpHeaderNames
+import ratpack.exec.Promise
 import ratpack.test.exec.ExecHarness
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -43,7 +44,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> harness.promiseOf(Optional.of(oAuthToken))
+		1 * tokenValidator.validate("Token") >> Promise.value(Optional.of(oAuthToken))
 		result.calledNext
 	}
 
@@ -59,7 +60,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> harness.promiseOf(Optional.empty())
+		1 * tokenValidator.validate("Token") >> Promise.value(Optional.empty())
 		result.status.code == 401
 	}
 }

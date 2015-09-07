@@ -1,16 +1,9 @@
 package st.ratpack.auth;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ratpack.exec.ExecControl;
 import ratpack.exec.Promise;
 import ratpack.http.HttpUrlBuilder;
 import ratpack.http.client.HttpClient;
@@ -25,13 +18,13 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 
 	private final HttpClient httpClient;
 	private final AuthModule.Config config;
-	private final ExecControl execControl;
 	private static Logger logger = LoggerFactory.getLogger(SpringSecCheckTokenValidator.class);
+	private final ObjectMapper objectMapper;
 
-	SpringSecCheckTokenValidator(AuthModule.Config config, HttpClient httpClient, ExecControl execControl) {
+	SpringSecCheckTokenValidator(AuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
 		this.httpClient = httpClient;
 		this.config = config;
-		this.execControl = execControl;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -49,18 +42,16 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 			});
 		});
 
-		return execControl.promise(fulfiller -> {
+		return Promise.of(downstream -> {
 			resp.onError(t -> {
 				logger.error("Failed to check auth token.", t);
-				fulfiller.success(Optional.<OAuthToken>empty());
+				downstream.success(Optional.<OAuthToken>empty());
 			}).then(response -> {
 				if (response.getStatusCode() != 200) {
 					logger.error("Got Status: " + response.getStatusCode());
-					fulfiller.success(Optional.<OAuthToken>empty());
+					downstream.success(Optional.<OAuthToken>empty());
 				} else {
 					OAuthToken oAuthToken = null;
-
-					ObjectMapper objectMapper = getDefaultJackson(); //TODO pull from context
 
 					CheckTokenResponse tokenResponse = objectMapper.readValue(response.getBody().getInputStream(), CheckTokenResponse.class);
 
@@ -82,7 +73,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 
 					}
 
-					fulfiller.success(Optional.ofNullable(oAuthToken));
+					downstream.success(Optional.ofNullable(oAuthToken));
 				}
 			});
 
@@ -94,16 +85,4 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 		return "Basic " + encodedCreds;
 	}
 
-	static ObjectMapper getDefaultJackson() {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		objectMapper.registerModule(new Jdk7Module());
-		objectMapper.registerModule(new Jdk8Module());
-		objectMapper.registerModule(new GuavaModule());
-		JsonFactory factory = objectMapper.getFactory();
-		factory.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-		factory.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
-
-		return objectMapper;
-	}
 }

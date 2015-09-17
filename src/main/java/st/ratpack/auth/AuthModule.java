@@ -1,9 +1,9 @@
 package st.ratpack.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
-import ratpack.exec.ExecControl;
 import ratpack.guice.ConfigurableModule;
 import ratpack.http.client.HttpClient;
 
@@ -17,8 +17,8 @@ public class AuthModule extends ConfigurableModule<AuthModule.Config> {
 
 	@Provides
 	@Singleton
-	public TokenValidator tokenValidator(AuthModule.Config config, HttpClient httpClient, ExecControl execControl) {
-		return new SpringSecCheckTokenValidator(config, httpClient, execControl);
+	public TokenValidator tokenValidator(AuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
+		return new SpringSecCheckTokenValidator(config, httpClient, objectMapper);
 	}
 
 	public static class Config {

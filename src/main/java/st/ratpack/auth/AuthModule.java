@@ -2,7 +2,6 @@ package st.ratpack.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Provides;
-import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import ratpack.guice.ConfigurableModule;
 import ratpack.http.client.HttpClient;
@@ -18,13 +17,16 @@ public class AuthModule extends ConfigurableModule<AuthModule.Config> {
 	@Provides
 	@Singleton
 	public TokenValidator tokenValidator(AuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
-		return new SpringSecCheckTokenValidator(config, httpClient, objectMapper);
+
+		TokenValidator validator = new SpringSecCheckTokenValidator(config, httpClient, objectMapper);
+		return new CachingTokenValidator(config.ttl, validator);
 	}
 
 	public static class Config {
 		URI host;
 		String user;
 		String password;
+		Long ttl;
 
 		public URI getHost() {
 			return host;
@@ -49,6 +51,10 @@ public class AuthModule extends ConfigurableModule<AuthModule.Config> {
 		public void setPassword(String password) {
 			this.password = password;
 		}
+
+		public Long getTtl() { return ttl; }
+
+		public void setTtl(Long ttl) { this.ttl = ttl; }
 	}
 
 }

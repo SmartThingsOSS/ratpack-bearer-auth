@@ -1,6 +1,8 @@
 package st.ratpack.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,22 +15,34 @@ import st.ratpack.auth.springsec.CheckTokenResponse;
 import java.net.URI;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class SpringSecCheckTokenValidator implements TokenValidator {
 
+	public static long DEFAULT_TTL = 5000;
+	private static Logger logger = LoggerFactory.getLogger(SpringSecCheckTokenValidator.class);
+
 	private final HttpClient httpClient;
 	private final AuthModule.Config config;
-	private static Logger logger = LoggerFactory.getLogger(SpringSecCheckTokenValidator.class);
 	private final ObjectMapper objectMapper;
+	private final Cache<String, OAuthToken> cache;
 
 	SpringSecCheckTokenValidator(AuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
 		this.httpClient = httpClient;
 		this.config = config;
 		this.objectMapper = objectMapper;
+		Long ttl = config.ttl != null ? config.ttl : DEFAULT_TTL;
+		this.cache = CacheBuilder.newBuilder().expireAfterWrite(ttl, TimeUnit.MILLISECONDS).build();
 	}
 
 	@Override
 	public Promise<Optional<OAuthToken>> validate(String token) {
+
+		OAuthToken cachedToken = cache.getIfPresent(token);
+
+		if (cachedToken != null) {
+			return Promise.value(Optional.of(cachedToken));
+		}
 
 		URI uri = HttpUrlBuilder.base(config.host)
 			.path("oauth/check_token")
@@ -70,7 +84,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 						} else {
 							oAuthToken.setUser(Optional.<User>empty());
 						}
-
+						cache.put(token, oAuthToken);
 					}
 
 					downstream.success(Optional.ofNullable(oAuthToken));

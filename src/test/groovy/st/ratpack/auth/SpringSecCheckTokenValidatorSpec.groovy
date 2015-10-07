@@ -35,7 +35,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		given:
 		def conf = new AuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
 		def httpClientToSpringSec
-		TokenValidator tokenValidator
+		SpringSecCheckTokenValidator tokenValidator
 		harness.run {
 			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
 			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec, getDefaultJackson())
@@ -47,12 +47,29 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		}
 
 		then:
-		result.getValueOrThrow().isPresent()
-		with(result.getValueOrThrow().get()) { OAuthToken returnedToken ->
+		def optional = result.getValueOrThrow()
+		optional.isPresent()
+		with(optional.get()) { OAuthToken returnedToken ->
 			returnedToken.user.get().username == "beckje01"
 			returnedToken.scopes.contains("read")
 			returnedToken.clientId == 'clientapp'
+			tokenValidator.cache.asMap() == [fakeToken: returnedToken]
 		}
+
+		when: 'a second request is made'
+		ExecResult<Optional<OAuthToken>> result2 = harness.yield {
+			return tokenValidator.validate("fakeToken")
+		}
+
+		then: 'the cached result is returned'
+		result2.getValueOrThrow().get().is(optional.get())
+
+		when: 'the ttl expires'
+		sleep(SpringSecCheckTokenValidator.DEFAULT_TTL)
+		tokenValidator.cache.cleanUp() //make sure to evict expired values
+
+		then: 'the cache is empty'
+		tokenValidator.cache.size() == 0
 
 	}
 
@@ -60,7 +77,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		given:
 		def conf = new AuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
 		def httpClientToSpringSec
-		TokenValidator tokenValidator
+		SpringSecCheckTokenValidator tokenValidator
 		harness.run {
 			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
 			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec, getDefaultJackson())
@@ -73,6 +90,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 
 		then:
 		!result.getValueOrThrow().isPresent()
+		tokenValidator.cache.size() == 0 //nothing cached
 
 	}
 

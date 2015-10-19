@@ -12,6 +12,7 @@ import ratpack.exec.ExecResult
 import ratpack.http.client.HttpClient
 import ratpack.test.embed.EmbeddedApp
 import ratpack.test.exec.ExecHarness
+import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 import st.fixture.SpringSecCheckTokenStub
@@ -23,15 +24,8 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 	@Shared
 	EmbeddedApp springSec = SpringSecCheckTokenStub.stub
 
-	ExecHarness harness
-
-	def setup() {
-		harness = ExecHarness.harness()
-	}
-
-	def cleanup() {
-		harness.close()
-	}
+	@AutoCleanup
+	ExecHarness harness = ExecHarness.harness()
 
 	def "Check valid token"() {
 		given:

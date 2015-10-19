@@ -3,15 +3,13 @@ package st.ratpack.auth
 import ratpack.exec.ExecResult
 import ratpack.exec.Promise
 import ratpack.test.exec.ExecHarness
+import spock.lang.AutoCleanup
 import spock.lang.Specification
 
 class CachingTokenValidatorSpec extends Specification {
 
-	ExecHarness harness
-
-	def setup() {
-		harness = ExecHarness.harness()
-	}
+	@AutoCleanup
+	ExecHarness harness = ExecHarness.harness()
 
 	def "Caching validator only calls upstream once for a token"() {
 		given:
@@ -28,7 +26,7 @@ class CachingTokenValidatorSpec extends Specification {
 		}
 
 		then: "Calls upstream on a cache miss"
-		1 * tokenValidator.validate(token) >> Promise.<Optional<OAuthToken>>value(Optional.<OAuthToken>of(new OAuthToken()))
+		1 * tokenValidator.validate(token) >> Promise.<Optional<OAuthToken>> value(Optional.<OAuthToken> of(new OAuthToken()))
 		result.success
 		result.value.isPresent()
 

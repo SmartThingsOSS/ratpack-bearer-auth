@@ -1,4 +1,4 @@
-package st.ratpack.auth;
+package st.ratpack.auth.springsec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -8,7 +8,9 @@ import ratpack.exec.Promise;
 import ratpack.http.HttpUrlBuilder;
 import ratpack.http.client.HttpClient;
 import ratpack.http.client.ReceivedResponse;
-import st.ratpack.auth.springsec.CheckTokenResponse;
+import st.ratpack.auth.OAuthToken;
+import st.ratpack.auth.TokenValidator;
+import st.ratpack.auth.User;
 
 import java.net.URI;
 import java.util.Base64;
@@ -17,11 +19,11 @@ import java.util.Optional;
 public class SpringSecCheckTokenValidator implements TokenValidator {
 
 	private final HttpClient httpClient;
-	private final AuthModule.Config config;
+	private final SpringSecCheckAuthModule.Config config;
 	private static Logger logger = LoggerFactory.getLogger(SpringSecCheckTokenValidator.class);
 	private final ObjectMapper objectMapper;
 
-	SpringSecCheckTokenValidator(AuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
+	public SpringSecCheckTokenValidator(SpringSecCheckAuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
 		this.httpClient = httpClient;
 		this.config = config;
 		this.objectMapper = objectMapper;
@@ -30,7 +32,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 	@Override
 	public Promise<Optional<OAuthToken>> validate(String token) {
 
-		URI uri = HttpUrlBuilder.base(config.host)
+		URI uri = HttpUrlBuilder.base(config.getHost())
 			.path("oauth/check_token")
 			.params("token", token)
 			.build();
@@ -38,7 +40,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 		Promise<ReceivedResponse> resp = httpClient.get(uri, rs -> {
 			rs.redirects(0);
 			rs.headers(headers -> {
-				headers.add(HttpHeaderNames.AUTHORIZATION, buildBasicAuthHeader(config.user, config.password));
+				headers.add(HttpHeaderNames.AUTHORIZATION, buildBasicAuthHeader(config.getUser(), config.getPassword()));
 			});
 		});
 

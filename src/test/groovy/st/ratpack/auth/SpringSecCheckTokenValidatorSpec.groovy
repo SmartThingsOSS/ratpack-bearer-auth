@@ -15,6 +15,8 @@ import ratpack.test.exec.ExecHarness
 import spock.lang.Shared
 import spock.lang.Specification
 import st.fixture.SpringSecCheckTokenStub
+import st.ratpack.auth.springsec.SpringSecCheckAuthModule
+import st.ratpack.auth.springsec.SpringSecCheckTokenValidator
 
 class SpringSecCheckTokenValidatorSpec extends Specification {
 
@@ -33,7 +35,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 
 	def "Check valid token"() {
 		given:
-		def conf = new AuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
+		def conf = new SpringSecCheckAuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
 		def httpClientToSpringSec
 		TokenValidator tokenValidator
 		harness.run {
@@ -58,7 +60,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 
 	def "Check invalid token"() {
 		given:
-		def conf = new AuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
+		def conf = new SpringSecCheckAuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
 		def httpClientToSpringSec
 		TokenValidator tokenValidator
 		harness.run {

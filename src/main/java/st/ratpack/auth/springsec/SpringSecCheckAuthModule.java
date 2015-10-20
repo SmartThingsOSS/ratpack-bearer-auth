@@ -1,15 +1,16 @@
-package st.ratpack.auth;
+package st.ratpack.auth.springsec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Provides;
-import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import ratpack.guice.ConfigurableModule;
 import ratpack.http.client.HttpClient;
+import st.ratpack.auth.CachingTokenValidator;
+import st.ratpack.auth.TokenValidator;
 
 import java.net.URI;
 
-public class AuthModule extends ConfigurableModule<AuthModule.Config> {
+public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckAuthModule.Config> {
 
 	@Override
 	protected void configure() {
@@ -17,14 +18,14 @@ public class AuthModule extends ConfigurableModule<AuthModule.Config> {
 
 	@Provides
 	@Singleton
-	public TokenValidator tokenValidator(AuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
-		return new SpringSecCheckTokenValidator(config, httpClient, objectMapper);
+	public TokenValidator tokenValidator(SpringSecCheckAuthModule.Config config, HttpClient httpClient, ObjectMapper objectMapper) {
+		return new CachingTokenValidator(new SpringSecCheckTokenValidator(config, httpClient, objectMapper));
 	}
 
 	public static class Config {
-		URI host;
-		String user;
-		String password;
+		private URI host;
+		private String user;
+		private String password;
 
 		public URI getHost() {
 			return host;

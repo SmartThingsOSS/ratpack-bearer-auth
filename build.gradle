@@ -20,7 +20,7 @@ task wrapper(type: Wrapper) {
   gradleVersion = "2.7"
 }
 
-group = "smartthings.ratpack"
+group = "smartthings"
 version = rootProject.file('version.txt').text.trim()
 
 apply plugin: "base"

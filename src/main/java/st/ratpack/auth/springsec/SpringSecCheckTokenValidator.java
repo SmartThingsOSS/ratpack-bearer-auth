@@ -1,5 +1,6 @@
 package st.ratpack.auth.springsec;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 			rs.redirects(0);
 			rs.headers(headers -> {
 				headers.add(HttpHeaderNames.AUTHORIZATION, buildBasicAuthHeader(config.getUser(), config.getPassword()));
+				headers.add(HttpHeaderNames.ACCEPT, "application/json");
 			});
 		});
 
@@ -55,27 +57,31 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 				} else {
 					OAuthToken oAuthToken = null;
 
-					CheckTokenResponse tokenResponse = objectMapper.readValue(response.getBody().getInputStream(), CheckTokenResponse.class);
+					try {
+						CheckTokenResponse tokenResponse = objectMapper.readValue(response.getBody().getInputStream(), CheckTokenResponse.class);
 
-					if (tokenResponse.getClient_id() != null && !(tokenResponse.getClient_id().isEmpty())) {
-						oAuthToken = new OAuthToken();
+						if (tokenResponse.getClient_id() != null && !(tokenResponse.getClient_id().isEmpty())) {
+							oAuthToken = new OAuthToken();
 
-						oAuthToken.setClientId(tokenResponse.getClient_id());
-						oAuthToken.setScopes(tokenResponse.getScope());
+							oAuthToken.setClientId(tokenResponse.getClient_id());
+							oAuthToken.setScopes(tokenResponse.getScope());
 
-						if (tokenResponse.getUser_name() != null && !(tokenResponse.getUser_name().isEmpty())) {
-							//There is a use so we add an optional user to the token. This won't be there in the case of a client only oauth token.
-							User user = new User();
-							user.setUsername(tokenResponse.getUser_name());
-							user.setAuthorities(tokenResponse.getAuthorities());
-							oAuthToken.setUser(Optional.of(user));
-						} else {
-							oAuthToken.setUser(Optional.<User>empty());
+							if (tokenResponse.getUser_name() != null && !(tokenResponse.getUser_name().isEmpty())) {
+								//There is a use so we add an optional user to the token. This won't be there in the case of a client only oauth token.
+								User user = new User();
+								user.setUsername(tokenResponse.getUser_name());
+								user.setAuthorities(tokenResponse.getAuthorities());
+								oAuthToken.setUser(Optional.of(user));
+							} else {
+								oAuthToken.setUser(Optional.<User>empty());
+							}
 						}
 
+						downstream.success(Optional.ofNullable(oAuthToken));
+					} catch (JsonParseException ex) {
+						logger.error("Could not parse body");
+						downstream.error(ex);
 					}
-
-					downstream.success(Optional.ofNullable(oAuthToken));
 				}
 			});
 

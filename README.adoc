@@ -1,5 +1,5 @@
 = Ratpack Bearer Auth
 
-image:https://circleci.com/gh/SmartThingsOSS/ratpack-bearer-auth/tree/master.svg?style=svg["Circle CI", link="https://circleci.com/gh/SmartThingsOSS/ratpack-bearer-auth/tree/master"]
+image:https://img.shields.io/circleci/project/SmartThingsOSS/ratpack-bearer-auth.svg["Circle CI", link="https://circleci.com/gh/SmartThingsOSS/ratpack-bearer-auth/tree/master"]
 image:http://codecov.io/github/SmartThingsOSS/ratpack-bearer-auth/coverage.svg?branch=master["CodeCov", link="http://codecov.io/github/SmartThingsOSS/ratpack-bearer-auth?branch=master"]
 image:https://api.bintray.com/packages/smartthingsoss/maven/smartthings.ratpack-bearer-auth/images/download.svg["BinTray", link="https://bintray.com/smartthingsoss/maven/smartthings.ratpack-bearer-auth/_latestVersion"]

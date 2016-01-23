@@ -1,7 +1,7 @@
 package st.ratpack.auth;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.exec.Promise;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class CachingTokenValidator implements TokenValidator {
 
 	private final TokenValidator upstreamValidator;
-	private final Cache<String, Promise<Optional<OAuthToken>>> cache;
+	private final LoadingCache<String, Promise<Optional<OAuthToken>>> cache;
 	private static Logger logger = LoggerFactory.getLogger(CachingTokenValidator.class);
 
 	public CachingTokenValidator(TokenValidator upstreamValidator) {
@@ -21,14 +21,13 @@ public class CachingTokenValidator implements TokenValidator {
 		cache = Caffeine.<String, Promise<Optional<OAuthToken>>>newBuilder()
 			.maximumSize(10000L)
 			.expireAfterWrite(5L, TimeUnit.MINUTES)
-			.recordStats()
 			//			.executor(Execution.current().getEventLoop())  Don't do this it makes Ratpack hang.
-			.build();
+			.build(this::loadCache);
 	}
 
 	@Override
 	public Promise<Optional<OAuthToken>> validate(String token) {
-		return cache.get(token, this::loadCache);
+		return cache.get(token);
 	}
 
 	private Promise<Optional<OAuthToken>> loadCache(String token) {

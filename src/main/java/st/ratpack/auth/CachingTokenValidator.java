@@ -36,7 +36,11 @@ public class CachingTokenValidator implements TokenValidator {
 		Promise<Optional<OAuthToken>>
 				promiseOAuthToken = upstreamValidator.validate(token).cache();
 
-		promiseOAuthToken.then(o -> logger.trace("PUTTING: {}", o));
+		promiseOAuthToken
+				.onError(e -> cache.invalidate(token))
+				.map(o -> o.orElse(null))
+				.onNull(() -> cache.invalidate(token))
+				.then(o -> logger.trace("PUTTING: {}", o));
 
 		return promiseOAuthToken;
 	}

@@ -46,7 +46,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 			});
 		});
 
-		return Promise.of(downstream -> {
+		return Promise.of(downstream ->
 			resp.onError(t -> {
 				logger.error("Failed to check auth token.", t);
 				downstream.success(Optional.<OAuthToken>empty());
@@ -83,9 +83,8 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 						downstream.error(ex);
 					}
 				}
-			});
-
-		});
+			})
+		);
 	}
 
 	private String buildBasicAuthHeader(String user, String password) {

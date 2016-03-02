@@ -1,10 +1,10 @@
 buildscript {
-	repositories {
-		jcenter()
-	}
-	dependencies {
-		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1'
-	}
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1'
+  }
 }
 
 def jvmEncoding = java.nio.charset.Charset.defaultCharset().name()
@@ -20,40 +20,29 @@ task wrapper(type: Wrapper) {
   gradleVersion = "2.10"
 }
 
-group = "smartthings"
-version = rootProject.file('version.txt').text.trim()
+subprojects {
 
-apply plugin: "base"
-apply plugin: "groovy"
-apply plugin: "jacoco"
-apply plugin: "idea"
-apply from: file('gradle/publishing.gradle')
+  group = "smartthings"
+  version = rootProject.file('version.txt').text.trim()
 
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
+  apply plugin: "base"
+  apply plugin: "groovy"
+  apply plugin: "maven-publish"
+  apply plugin: "jacoco"
+  apply plugin: "idea"
+  apply from: rootProject.file('gradle/publishing.gradle')
 
-jacocoTestReport {
-  reports {
-    xml.enabled true
+  sourceCompatibility = "1.8"
+  targetCompatibility = "1.8"
+
+  jacocoTestReport {
+    reports {
+      xml.enabled true
+    }
   }
+
+  repositories {
+    jcenter()
+  }
+
 }
-
-repositories {
-  jcenter()
-}
-
-dependencies {
-  compile "org.slf4j:slf4j-api:${slf4jVersion}"
-  compile "io.ratpack:ratpack-core:${ratpackVersion}"
-  compile "io.ratpack:ratpack-guice:${ratpackVersion}"
-  compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
-
-  //Caching Impl
-  compile 'com.github.ben-manes.caffeine:caffeine:2.1.0'
-
-  testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
-  testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-  testRuntime 'cglib:cglib-nodep:2.2.2'
-  testRuntime 'org.objenesis:objenesis:1.2'
-}
-

@@ -65,6 +65,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 
 							oAuthToken.setClientId(tokenResponse.getClient_id());
 							oAuthToken.setScopes(tokenResponse.getScope());
+							oAuthToken.setAuthToken(token);
 
 							if (tokenResponse.getUser_name() != null && !(tokenResponse.getUser_name().isEmpty())) {
 								//There is a use so we add an optional user to the token. This won't be there in the case of a client only oauth token.

@@ -8,14 +8,16 @@ public class OAuthToken {
 	private Optional<User> user = Optional.empty();
 	private Set<String> scopes;
 	private String clientId;
+	private String authToken;
 
 	public OAuthToken() {
 	}
 
-	public OAuthToken(Optional<User> user, Set<String> scopes, String clientId) {
+	public OAuthToken(Optional<User> user, Set<String> scopes, String clientId, String authToken) {
 		this.user = user;
 		this.scopes = scopes;
 		this.clientId = clientId;
+		this.authToken = authToken;
 	}
 
 	public Optional<User> getUser() {
@@ -41,4 +43,8 @@ public class OAuthToken {
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
+
+	public String getAuthToken() { return authToken; }
+
+	public void setAuthToken(String authToken) { this.authToken = authToken; }
 }

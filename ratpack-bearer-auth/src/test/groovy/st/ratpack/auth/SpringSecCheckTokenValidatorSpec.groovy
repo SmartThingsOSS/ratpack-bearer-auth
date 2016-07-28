@@ -48,6 +48,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 			returnedToken.user.get().username == "beckje01"
 			returnedToken.scopes.contains("read")
 			returnedToken.clientId == 'clientapp'
+			returnedToken.authToken == 'fakeToken'
 		}
 
 	}

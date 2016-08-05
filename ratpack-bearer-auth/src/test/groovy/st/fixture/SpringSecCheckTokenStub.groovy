@@ -16,7 +16,7 @@ class SpringSecCheckTokenStub {
 						def token = request.queryParams.get("token")
 						println "Check_token stub got " + token
 						if(token == "fakeToken") {
-							render """{"exp":1438842239,"user_name":"beckje01","authorities":["ROLE_CONSOLE","ROLE_USER"],"client_id":"clientapp","scope":["mobile","read"]}"""
+							render """{"exp":1438842239,"uuid":"abcd","user_name":"beckje01","authorities":["ROLE_CONSOLE","ROLE_USER"],"client_id":"clientapp","scope":["mobile","read"]}"""
 						} else{
 							response.status(401)
 							response.send()

@@ -14,6 +14,11 @@ class CachingTokenValidatorSpec extends Specification {
 	def "Caching validator only calls upstream once for a token"() {
 		given:
 		String token = "fakeToken"
+		OAuthToken oAuthToken =
+				new DefaultOAuthToken.Builder()
+					.setAuthToken(token)
+					.build()
+
 		TokenValidator tokenValidator = Mock(TokenValidator)
 		CachingTokenValidator cachingTokenValidator
 		harness.run {
@@ -26,7 +31,7 @@ class CachingTokenValidatorSpec extends Specification {
 		}
 
 		then: "Calls upstream on a cache miss"
-		1 * tokenValidator.validate(token) >> Promise.<Optional<OAuthToken>> value(Optional.<OAuthToken> of(new OAuthToken()))
+		1 * tokenValidator.validate(token) >> Promise.<Optional<OAuthToken>> value(Optional.<OAuthToken> of(oAuthToken))
 		result.success
 		result.value.isPresent()
 

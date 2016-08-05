@@ -32,8 +32,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 	def "Next handler on Valid token"() {
 		given:
 		def tokenValidator = Mock(TokenValidator)
-		def oAuthToken = new OAuthToken();
-		oAuthToken.setUser(Optional.of(Mock(User)))
+		def oAuthToken = new DefaultOAuthToken.Builder().build();
 
 		when:
 		def result = handle(new BearerTokenAuthHandler(tokenValidator)) {

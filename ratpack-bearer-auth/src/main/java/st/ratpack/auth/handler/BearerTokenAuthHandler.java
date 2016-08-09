@@ -6,8 +6,10 @@ import ratpack.exec.Promise;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 import ratpack.registry.Registry;
+import st.ratpack.auth.DefaultUser;
 import st.ratpack.auth.OAuthToken;
 import st.ratpack.auth.TokenValidator;
+import st.ratpack.auth.User;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,18 +32,21 @@ public class BearerTokenAuthHandler implements Handler {
 			if (parts.size() == 2) {
 				String token = parts.get(1);
 
-				Promise<Optional<OAuthToken>> user = validator.validate(token);
+				Promise<Optional<OAuthToken>> optionalToken = validator.validate(token);
 
-				user.onError(t -> {sendError(ctx);}).then((Optional<OAuthToken> oAuthToken) -> {
+				optionalToken.onError(t -> {sendError(ctx);}).then((oAuthToken) -> {
 					if (oAuthToken.isPresent()) {
 						ctx.next(Registry.of(registrySpec -> {
 							OAuthToken authToken = oAuthToken.get();
 							//Add the oauth token object to the registry
 							registrySpec.add(authToken);
-							if (authToken.getUser().isPresent()) {
-								//If we have a user add it to the registry
-								registrySpec.add(authToken.getUser().get());
+
+							if (authToken.isUserToken()) {
+								DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);
+								User user = builder.build();
+								registrySpec.add(user);
 							}
+
 						}));
 					} else {
 						sendError(ctx);

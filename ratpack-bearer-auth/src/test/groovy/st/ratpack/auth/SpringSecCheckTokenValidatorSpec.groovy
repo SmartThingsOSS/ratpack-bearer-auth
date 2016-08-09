@@ -1,12 +1,5 @@
 package st.ratpack.auth
 
-import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.guava.GuavaModule
-import com.fasterxml.jackson.datatype.jdk7.Jdk7Module
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import io.netty.buffer.UnpooledByteBufAllocator
 import ratpack.exec.ExecResult
 import ratpack.http.client.HttpClient
@@ -34,7 +27,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		TokenValidator tokenValidator
 		harness.run {
 			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
-			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec, getDefaultJackson())
+			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec)
 		}
 
 		when:
@@ -45,12 +38,16 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		then:
 		result.getValueOrThrow().isPresent()
 		with(result.getValueOrThrow().get()) { OAuthToken returnedToken ->
-			returnedToken.user.get().username == "beckje01"
-			returnedToken.scopes.contains("read")
 			returnedToken.clientId == 'clientapp'
-			returnedToken.authToken == 'fakeToken'
-		}
+			returnedToken.value == 'fakeToken'
+			returnedToken.scope.contains("read")
 
+			User user = new DefaultUser.Builder(returnedToken).build();
+			user.userName == "beckje01"
+			user.authorities.size() == 2
+			user.authorities.contains('ROLE_CONSOLE')
+			user.authorities.contains('ROLE_USER')
+		}
 	}
 
 	def "Check invalid token"() {
@@ -60,29 +57,16 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		TokenValidator tokenValidator
 		harness.run {
 			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
-			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec, getDefaultJackson())
+			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec)
 		}
 
 		when:
-		ExecResult<Optional<User>> result = harness.yield {
+		ExecResult<Optional<OAuthToken>> result = harness.yield {
 			return tokenValidator.validate("badToken")
 		}
 
 		then:
 		!result.getValueOrThrow().isPresent()
 
-	}
-
-	private static ObjectMapper getDefaultJackson() {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		objectMapper.registerModule(new Jdk7Module());
-		objectMapper.registerModule(new Jdk8Module());
-		objectMapper.registerModule(new GuavaModule());
-		JsonFactory factory = objectMapper.getFactory();
-		factory.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-		factory.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
-
-		return objectMapper;
 	}
 }

@@ -3,6 +3,7 @@ package st.ratpack.auth.handler
 import com.google.common.collect.ImmutableSet
 import spock.lang.Specification
 import spock.lang.Unroll
+import st.ratpack.auth.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
 
 import static ratpack.groovy.test.handling.GroovyRequestFixture.handle
@@ -12,8 +13,10 @@ class TokenScopeFilterHandlerSpec extends Specification {
 	@Unroll
 	def "For #scopes a token with #tokenScopes calledNext: #calledNext"() {
 		given:
-		OAuthToken oauthToken = new OAuthToken()
-		oauthToken.setScopes(ImmutableSet.copyOf(tokenScopes))
+		OAuthToken oauthToken =
+				new DefaultOAuthToken.Builder()
+		          .setScope(tokenScopes)
+		          .build();
 
 		when:
 		def result = handle(new TokenScopeFilterHandler((String[])scopes.toArray())) {

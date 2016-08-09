@@ -21,7 +21,8 @@ public class TokenScopeFilterHandler implements Handler {
 		Optional<OAuthToken> oAuthTokenOptional = ctx.maybeGet(OAuthToken.class);
 
 		if (oAuthTokenOptional.isPresent()) {
-			Sets.SetView<String> sharedScopes = Sets.intersection(oAuthTokenOptional.get().getScopes(), allowedScopes);
+			OAuthToken token = oAuthTokenOptional.get();
+			Sets.SetView<String> sharedScopes = Sets.intersection(token.getScope(), allowedScopes);
 			if (!sharedScopes.isEmpty()) {
 				ctx.next();
 			} else {

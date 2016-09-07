@@ -26,15 +26,15 @@ public class TokenScopeFilterHandler implements Handler {
 			if (!sharedScopes.isEmpty()) {
 				ctx.next();
 			} else {
-				sendError(ctx);
+				sendError(ctx, 403);
 			}
 		} else {
-			sendError(ctx);
+			sendError(ctx, 401);
 		}
 	}
 
-	private void sendError(Context ctx) {
+	private void sendError(Context ctx, int statusCode) {
 		//Not authorized stop the chain here
-		ctx.getResponse().status(401).send();
+		ctx.getResponse().status(statusCode).send();
 	}
 }

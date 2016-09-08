@@ -1,6 +1,5 @@
 package st.ratpack.auth.handler
 
-import com.google.common.collect.ImmutableSet
 import spock.lang.Specification
 import spock.lang.Unroll
 import st.ratpack.auth.DefaultOAuthToken
@@ -26,6 +25,7 @@ class TokenScopeFilterHandlerSpec extends Specification {
 
 		then:
 		result.calledNext == calledNext
+		result.status.code == calledNext ? 200 : 403
 
 		where:
 		scopes              | tokenScopes           || calledNext

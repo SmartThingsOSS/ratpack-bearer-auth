@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 			});
 		});
 
-		return Promise.of(downstream ->
+		return Promise.async(downstream ->
 			resp.onError(t -> {
 				logger.error("Failed to check auth token.", t);
 				downstream.success(Optional.<OAuthToken>empty());
@@ -93,7 +92,7 @@ public class SpringSecCheckTokenValidator implements TokenValidator {
 
 	private static ObjectMapper buildObjectMapper() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+		objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 		objectMapper.getFactory().enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
 		objectMapper.getFactory().enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
 		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

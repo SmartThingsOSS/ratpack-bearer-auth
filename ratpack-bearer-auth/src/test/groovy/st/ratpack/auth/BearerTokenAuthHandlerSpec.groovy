@@ -22,7 +22,6 @@ class BearerTokenAuthHandlerSpec extends Specification {
 
 		where:
 		authHeader << [
-			null,
 			"",
 			"Basic BLAH",
 			"Bearer Token Something"

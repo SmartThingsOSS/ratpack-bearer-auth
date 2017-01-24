@@ -40,6 +40,17 @@ public class DefaultOAuthToken implements OAuthToken {
 	}
 
 	@Override
+	public String getName() {
+		if (additionalInformation.containsKey("principal")) {
+			return (String) additionalInformation.get("principal");
+		} else if (isUserToken()) {
+			return (String)additionalInformation.get("user_name");
+		} else {
+			return null;
+		}
+	}
+
+	@Override
 	public String toString() {
 		return "DefaultOAuthToken{" +
 				"clientId='" + clientId + '\'' +

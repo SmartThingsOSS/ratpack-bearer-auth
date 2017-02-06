@@ -71,7 +71,7 @@ bintray {
 	publish = true
 	pkg {
 		repo = 'maven'
-		name = 'smartthings.ratpack-bearer-auth'
+		name = "${project.group}.${project.name}"
 		userOrg = 'smartthingsoss'
 		licenses = ['Apache-2.0']
 		desc = 'Use spring security to authenticate ratpack'

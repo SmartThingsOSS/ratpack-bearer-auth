@@ -1,7 +1,7 @@
 package st.ratpack.auth.springsec;
 
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.google.inject.*;
+import com.google.inject.multibindings.OptionalBinder;
 import ratpack.guice.ConfigurableModule;
 import ratpack.http.client.HttpClient;
 import st.ratpack.auth.*;
@@ -12,12 +12,11 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 
 	@Override
 	protected void configure() {
-	}
+		OptionalBinder.newOptionalBinder(binder(), TokenProvider.class)
+			.setDefault().to(SpringSecCheckTokenProvider.class).in(Scopes.SINGLETON);
 
-	@Provides
-	@Singleton
-	public TokenValidator tokenValidator(SpringSecCheckAuthModule.Config config, HttpClient httpClient) {
-		return new CachingTokenValidator(new SpringSecCheckTokenValidator(config, httpClient));
+		OptionalBinder.newOptionalBinder(binder(), TokenValidator.class)
+			.setDefault().toProvider(TokenValidatorProvider.class).in(Scopes.SINGLETON);
 	}
 
 	public static class Config {
@@ -47,6 +46,21 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 
 		public void setPassword(String password) {
 			this.password = password;
+		}
+	}
+
+	public static class TokenValidatorProvider implements Provider<TokenValidator> {
+
+		private final TokenProvider tokenProvider;
+
+		@Inject
+		TokenValidatorProvider(TokenProvider tokenProvider) {
+			this.tokenProvider = tokenProvider;
+		}
+
+		@Override
+		public TokenValidator get() {
+			return new CachingTokenValidator(new SpringSecCheckTokenValidator(tokenProvider));
 		}
 	}
 

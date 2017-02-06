@@ -10,6 +10,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import st.fixture.SpringSecCheckTokenStub
 import st.ratpack.auth.springsec.SpringSecCheckAuthModule
+import st.ratpack.auth.springsec.SpringSecCheckTokenProvider
 import st.ratpack.auth.springsec.SpringSecCheckTokenValidator
 
 class SpringSecCheckTokenValidatorSpec extends Specification {
@@ -24,10 +25,12 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		given:
 		def conf = new SpringSecCheckAuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
 		def httpClientToSpringSec
+		TokenProvider tokenProvider
 		TokenValidator tokenValidator
 		harness.run {
 			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
-			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec)
+			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
+			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}
 
 		when:
@@ -54,10 +57,12 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		given:
 		def conf = new SpringSecCheckAuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
 		def httpClientToSpringSec
+		TokenProvider tokenProvider
 		TokenValidator tokenValidator
 		harness.run {
 			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
-			tokenValidator = new SpringSecCheckTokenValidator(conf, httpClientToSpringSec)
+			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
+			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}
 
 		when:

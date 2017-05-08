@@ -41,7 +41,7 @@ public class BearerTokenAuthHandler implements Handler {
 							registrySpec.add(authToken);
 
 							if (authToken.isUserToken()) {
-								DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);
+								DefaultUser.Builder builder = new DefaultUser.Builder(authToken);
 								User user = builder.build();
 								registrySpec.add(user);
 							}

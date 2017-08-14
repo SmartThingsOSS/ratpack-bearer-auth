@@ -30,37 +30,34 @@ public class BearerTokenAuthHandler implements Handler {
 			List<String> parts = Arrays.asList(authHeader.trim().split(" "));
 			if (parts.size() == 2) {
 				String token = parts.get(1);
-
 				Promise<Optional<OAuthToken>> optionalToken = validator.validate(token);
+				optionalToken
+					.onError(t -> {
+						ctx.next();
+					})
+					.then((oAuthToken) -> {
+						if (oAuthToken.isPresent()) {
+							ctx.next(Registry.of(registrySpec -> {
+								OAuthToken authToken = oAuthToken.get();
+								// Add the oauth token object to the registry
+								registrySpec.add(authToken);
 
-				optionalToken.onError(t -> {sendError(ctx);}).then((oAuthToken) -> {
-					if (oAuthToken.isPresent()) {
-						ctx.next(Registry.of(registrySpec -> {
-							OAuthToken authToken = oAuthToken.get();
-							//Add the oauth token object to the registry
-							registrySpec.add(authToken);
+								if (authToken.isUserToken()) {
+									DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);
+									User user = builder.build();
+									registrySpec.add(user);
+								}
 
-							if (authToken.isUserToken()) {
-								DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);
-								User user = builder.build();
-								registrySpec.add(user);
-							}
-
-						}));
-					} else {
-						sendError(ctx);
-					}
-				});
+							}));
+						} else {
+							ctx.next();
+						}
+					});
 			} else {
-				sendError(ctx);
+				ctx.next();
 			}
 		} else {
-			sendError(ctx);
+			ctx.next();
 		}
-	}
-
-	private void sendError(Context ctx) {
-		//Not authorized stop the chain here
-		ctx.getResponse().status(401).send();
 	}
 }

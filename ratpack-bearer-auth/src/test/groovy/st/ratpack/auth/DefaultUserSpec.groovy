@@ -1,6 +1,7 @@
 package st.ratpack.auth
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class DefaultUserSpec extends Specification {
 
@@ -88,4 +89,34 @@ class DefaultUserSpec extends Specification {
 		assert user.authorities == authorities
 		assert user.additionalInformation == additionalInfo
 	}
+
+	void 'it should build a user from a user oauth token when authorities are null'() {
+		given:
+		String username = 'batman'
+		Set<String> authorities = null
+		Set scopes = ['mobile'] as Set
+		String clientId = 'clientId'
+		String authToken = 'authToken'
+		Map<String, Object> additionalInfo = [
+			'user_name': username,
+			'authorities': authorities
+		]
+
+		OAuthToken token =
+				new DefaultOAuthToken.Builder()
+						.setAuthToken(authToken)
+						.setClientId(clientId)
+						.setScope(scopes)
+						.setAdditionalInformation(additionalInfo)
+						.build()
+
+		when:
+		User user = new DefaultUser.Builder(token).build()
+
+		then:
+		assert user.userName == username
+		assert user.authorities.size() == 0
+		assert user.additionalInformation == additionalInfo
+	}
+
 }

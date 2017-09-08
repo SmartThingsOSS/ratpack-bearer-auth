@@ -57,6 +57,8 @@ public class DefaultUser implements User {
 		public Builder(OAuthToken token) {
 			String userName = (String) token.getAdditionalInformation().get("user_name");
 			Collection<String> authorities = Collection.class.cast(token.getAdditionalInformation().get("authorities"));
+			authorities = authorities == null ? Collections.emptySet() : authorities;
+
 			if (userName == null || userName.isEmpty()) {
 				throw new IllegalArgumentException("Cannot construct a user from a client based oauth token");
 			}

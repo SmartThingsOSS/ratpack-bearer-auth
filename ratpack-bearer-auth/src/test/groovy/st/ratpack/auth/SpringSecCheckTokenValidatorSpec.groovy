@@ -28,7 +28,10 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		TokenProvider tokenProvider
 		TokenValidator tokenValidator
 		harness.run {
-			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
+			httpClientToSpringSec = HttpClient.of { spec ->
+				spec.byteBufAllocator(new UnpooledByteBufAllocator(false))
+				spec.maxContentLength(2000)
+			}
 			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
 			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}
@@ -60,7 +63,10 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		TokenProvider tokenProvider
 		TokenValidator tokenValidator
 		harness.run {
-			httpClientToSpringSec = HttpClient.httpClient(new UnpooledByteBufAllocator(false), 2000)
+			httpClientToSpringSec = HttpClient.of { spec ->
+				spec.byteBufAllocator(new UnpooledByteBufAllocator(false))
+				spec.maxContentLength(2000)
+			}
 			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
 			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}

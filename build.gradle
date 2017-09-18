@@ -16,10 +16,6 @@ if (!JavaVersion.current().java8Compatible) {
   throw new IllegalStateException("Must be built with Java 8 or higher")
 }
 
-task wrapper(type: Wrapper) {
-  gradleVersion = "2.10"
-}
-
 subprojects {
 
   group = "smartthings"

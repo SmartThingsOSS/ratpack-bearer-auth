@@ -41,11 +41,11 @@ public class SpringSecCheckTokenProvider implements TokenProvider {
 			.body(body -> body.type(APPLICATION_X_WWW_FORM_URLENCODED.toString()).text("token=" + token))
 			.redirects(0)
 			.headers(headers -> {
-				headers.add(
+				headers.set(
 					HttpHeaderNames.AUTHORIZATION,
 					buildBasicAuthHeader(config.getUser(), config.getPassword())
 				);
-				headers.add(HttpHeaderNames.ACCEPT, APPLICATION_JSON);
+				headers.set(HttpHeaderNames.ACCEPT, APPLICATION_JSON);
 			})
 		);
 	}

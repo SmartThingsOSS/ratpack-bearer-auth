@@ -5,6 +5,7 @@ dependencies {
 
   //Caching Impl
   compile 'com.github.ben-manes.caffeine:caffeine:2.5.6'
+  compile 'com.nimbusds:nimbus-jose-jwt:4.26.1'
 
   testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
   testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"

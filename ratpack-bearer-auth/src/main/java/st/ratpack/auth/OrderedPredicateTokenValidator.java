@@ -10,7 +10,7 @@ public class OrderedPredicateTokenValidator implements TokenValidator {
 
 	private List<PredicateValidatorTuple> predicateValidatorTuples;
 
-	OrderedPredicateTokenValidator(List<PredicateValidatorTuple> predicateValidatorTuples) {
+	public OrderedPredicateTokenValidator(List<PredicateValidatorTuple> predicateValidatorTuples) {
 		this.predicateValidatorTuples = predicateValidatorTuples;
 	}
 

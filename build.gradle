@@ -1,44 +1,46 @@
 buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-  }
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+	}
 }
 
 def jvmEncoding = java.nio.charset.Charset.defaultCharset().name()
 if (jvmEncoding != "UTF-8") {
-  throw new IllegalStateException("Build environment must be UTF-8 (it is: $jvmEncoding) - add '-Dfile.encoding=UTF-8' to the GRADLE_OPTS environment variable ")
+	throw new IllegalStateException("Build environment must be UTF-8 (it is: $jvmEncoding) - add '-Dfile.encoding=UTF-8' to the GRADLE_OPTS environment variable ")
 }
 
 if (!JavaVersion.current().java8Compatible) {
-  throw new IllegalStateException("Must be built with Java 8 or higher")
+	throw new IllegalStateException("Must be built with Java 8 or higher")
 }
 
 subprojects {
 
-  group = "smartthings"
-  version = rootProject.file('version.txt').text.trim()
+	group = "smartthings"
+	version = rootProject.file('version.txt').text.trim()
 
-  apply plugin: "base"
-  apply plugin: "groovy"
-  apply plugin: "maven-publish"
-  apply plugin: "jacoco"
-  apply plugin: "idea"
-  apply from: rootProject.file('gradle/publishing.gradle')
+	apply plugin: "base"
+	apply plugin: "groovy"
+	apply plugin: "maven-publish"
+	apply plugin: "jacoco"
+	apply plugin: "idea"
+	apply plugin: 'com.github.ben-manes.versions'
+	apply from: rootProject.file('gradle/publishing.gradle')
 
-  sourceCompatibility = "1.8"
-  targetCompatibility = "1.8"
+	sourceCompatibility = "1.8"
+	targetCompatibility = "1.8"
 
-  jacocoTestReport {
-    reports {
-      xml.enabled true
-    }
-  }
+	jacocoTestReport {
+		reports {
+			xml.enabled true
+		}
+	}
 
-  repositories {
-    jcenter()
-  }
+	repositories {
+		jcenter()
+	}
 
 }

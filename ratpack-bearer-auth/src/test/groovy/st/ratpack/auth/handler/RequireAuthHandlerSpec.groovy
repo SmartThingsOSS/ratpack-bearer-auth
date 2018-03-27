@@ -34,6 +34,19 @@ class RequireAuthHandlerSpec extends Specification {
 		assert result.status.code == HttpResponseStatus.UNAUTHORIZED.code()
 	}
 
+	void 'it should raise a 401 when result status is not unknown'() {
+		when:
+		def result = handle(new RequireAuthHandler(), {
+			registry { spec ->
+				spec.add(ValidateTokenResult, ValidateTokenResult.INVALID_CASE)
+			}
+		})
+
+		then:
+		assert result.sentResponse
+		assert result.status.code == HttpResponseStatus.UNAUTHORIZED.code()
+	}
+
 	void 'it should return 520 with a failed auth call'() {
 		when:
 		def result = handle(new RequireAuthHandler(), {

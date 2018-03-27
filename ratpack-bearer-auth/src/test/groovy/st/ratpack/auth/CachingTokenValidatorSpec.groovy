@@ -5,6 +5,7 @@ import ratpack.exec.Promise
 import ratpack.test.exec.ExecHarness
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import st.ratpack.auth.internal.DefaultOAuthToken
 
 class CachingTokenValidatorSpec extends Specification {
 
@@ -26,14 +27,14 @@ class CachingTokenValidatorSpec extends Specification {
 		}
 
 		when: "Validating a token"
-		ExecResult<Optional<OAuthToken>> result = harness.yield {
+		ExecResult<ValidateTokenResult> result = harness.yield {
 			cachingTokenValidator.validate(token)
 		}
 
 		then: "Calls upstream on a cache miss"
-		1 * tokenValidator.validate(token) >> Promise.<Optional<OAuthToken>> value(Optional.<OAuthToken> of(oAuthToken))
+		1 * tokenValidator.validate(token) >> Promise.<ValidateTokenResult> value(ValidateTokenResult.valid(oAuthToken))
 		result.success
-		result.value.isPresent()
+		result.value.isValid()
 
 		when: "A second validation call happens"
 		result = harness.yield {
@@ -43,7 +44,7 @@ class CachingTokenValidatorSpec extends Specification {
 		then: "No More calls to upstream"
 		0 * _._
 		result.success
-		result.value.isPresent()
+		result.value.isValid()
 	}
 
 }

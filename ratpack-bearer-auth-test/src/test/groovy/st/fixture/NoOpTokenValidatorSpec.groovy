@@ -7,6 +7,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 import st.ratpack.auth.OAuthToken
 import st.ratpack.auth.TokenValidator
+import st.ratpack.auth.ValidateTokenResult
 
 class NoOpTokenValidatorSpec extends Specification {
 
@@ -19,13 +20,13 @@ class NoOpTokenValidatorSpec extends Specification {
 		TokenValidator validator = new NoOpTokenValidator()
 
 		when:
-		ExecResult<Optional<OAuthToken>> result = harness.yield {
+		ExecResult<ValidateTokenResult> result = harness.yield {
 			return validator.validate(token)
 		}
 
 		then:
-		assert result.getValueOrThrow().isPresent()
-		with(result.getValueOrThrow().get(), { OAuthToken token ->
+		assert result.getValueOrThrow().isValid()
+		with(result.getValueOrThrow().getOAuthToken(), { OAuthToken token ->
 		    assert token.isUserToken() == isUserToken
 		})
 

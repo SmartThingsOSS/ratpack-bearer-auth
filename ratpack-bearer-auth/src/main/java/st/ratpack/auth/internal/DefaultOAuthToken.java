@@ -1,4 +1,6 @@
-package st.ratpack.auth;
+package st.ratpack.auth.internal;
+
+import st.ratpack.auth.OAuthToken;
 
 import java.util.*;
 

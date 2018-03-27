@@ -4,6 +4,7 @@ import ratpack.exec.Promise
 import ratpack.test.exec.ExecHarness
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import st.ratpack.auth.internal.DefaultOAuthToken
 
 class OrderedPredicateTokenValidatorSpec extends Specification {
 
@@ -79,7 +80,7 @@ class OrderedPredicateTokenValidatorSpec extends Specification {
 		})
 
 		then:
-		!result.valueOrThrow.isPresent()
+		!result.valueOrThrow.isValid()
 
 		and:
 		0 * _
@@ -95,7 +96,7 @@ class OrderedPredicateTokenValidatorSpec extends Specification {
 		})
 
 		then:
-		!result.valueOrThrow.isPresent()
+		!result.valueOrThrow.isValid()
 
 		and:
 		0 * _

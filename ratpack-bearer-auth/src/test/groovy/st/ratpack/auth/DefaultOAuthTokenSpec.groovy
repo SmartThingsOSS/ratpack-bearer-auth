@@ -1,6 +1,7 @@
 package st.ratpack.auth
 
 import spock.lang.Specification
+import st.ratpack.auth.internal.DefaultOAuthToken
 
 class DefaultOAuthTokenSpec extends Specification {
 

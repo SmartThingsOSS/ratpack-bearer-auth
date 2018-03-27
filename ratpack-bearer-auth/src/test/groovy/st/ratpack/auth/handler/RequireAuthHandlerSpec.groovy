@@ -2,7 +2,8 @@ package st.ratpack.auth.handler
 
 import io.netty.handler.codec.http.HttpResponseStatus
 import spock.lang.Specification
-import st.ratpack.auth.DefaultOAuthToken
+import st.ratpack.auth.ValidateTokenResult
+import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
 
 import static ratpack.groovy.test.handling.GroovyRequestFixture.handle
@@ -31,6 +32,19 @@ class RequireAuthHandlerSpec extends Specification {
 		then:
 		assert result.sentResponse
 		assert result.status.code == HttpResponseStatus.UNAUTHORIZED.code()
+	}
+
+	void 'it should return 520 with a failed auth call'() {
+		when:
+		def result = handle(new RequireAuthHandler(), {
+			registry { spec ->
+				spec.add(ValidateTokenResult, ValidateTokenResult.ERROR_CASE)
+			}
+		})
+
+		then:
+		assert result.sentResponse
+		assert result.status.code == 520
 	}
 
 }

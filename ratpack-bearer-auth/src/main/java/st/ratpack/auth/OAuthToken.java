@@ -16,6 +16,6 @@ public interface OAuthToken {
 
 	default boolean isUserToken() {
 		Map<String, Object> info = getAdditionalInformation();
-		return info != null &&info.containsKey("user_name");
+		return info != null && info.containsKey("user_name");
 	}
 }

@@ -9,6 +9,7 @@ import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 import st.fixture.SpringSecCheckTokenStub
+import st.ratpack.auth.internal.DefaultUser
 import st.ratpack.auth.springsec.SpringSecCheckAuthModule
 import st.ratpack.auth.springsec.SpringSecCheckTokenProvider
 import st.ratpack.auth.springsec.SpringSecCheckTokenValidator
@@ -37,13 +38,13 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		}
 
 		when:
-		ExecResult<Optional<OAuthToken>> result = harness.yield {
+		ExecResult<ValidateTokenResult> result = harness.yield {
 			return tokenValidator.validate("fakeToken")
 		}
 
 		then:
-		result.getValueOrThrow().isPresent()
-		with(result.getValueOrThrow().get()) { OAuthToken returnedToken ->
+		result.getValueOrThrow().isValid()
+		with(result.getValueOrThrow().getOAuthToken()) { OAuthToken returnedToken ->
 			returnedToken.clientId == 'clientapp'
 			returnedToken.value == 'fakeToken'
 			returnedToken.scope.contains("read")
@@ -72,12 +73,39 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		}
 
 		when:
-		ExecResult<Optional<OAuthToken>> result = harness.yield {
+		ExecResult<ValidateTokenResult> result = harness.yield {
 			return tokenValidator.validate("badToken")
 		}
 
 		then:
-		!result.getValueOrThrow().isPresent()
+		!result.getValueOrThrow().isValid()
+
+	}
+
+
+
+	def "Check error token"() {
+		given:
+		def conf = new SpringSecCheckAuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")
+		def httpClientToSpringSec
+		TokenProvider tokenProvider
+		TokenValidator tokenValidator
+		harness.run {
+			httpClientToSpringSec = HttpClient.of { spec ->
+				spec.byteBufAllocator(new UnpooledByteBufAllocator(false))
+				spec.maxContentLength(2000)
+			}
+			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
+			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
+		}
+
+		when:
+		ExecResult<ValidateTokenResult> result = harness.yield {
+			return tokenValidator.validate("slowToken")
+		}
+
+		then:
+		result.getValueOrThrow().isErrorResult()
 
 	}
 }

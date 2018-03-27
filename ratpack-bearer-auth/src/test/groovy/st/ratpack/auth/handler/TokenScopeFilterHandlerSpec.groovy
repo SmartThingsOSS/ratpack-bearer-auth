@@ -2,7 +2,7 @@ package st.ratpack.auth.handler
 
 import spock.lang.Specification
 import spock.lang.Unroll
-import st.ratpack.auth.DefaultOAuthToken
+import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
 
 import static ratpack.groovy.test.handling.GroovyRequestFixture.handle

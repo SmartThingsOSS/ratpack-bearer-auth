@@ -16,13 +16,13 @@ public class OrderedPredicateTokenValidator implements TokenValidator {
 
 
 	@Override
-	public Promise<Optional<OAuthToken>> validate(String token) {
+	public Promise<ValidateTokenResult> validate(String token) {
 		for (PredicateValidatorTuple predicateValidator : predicateValidatorTuples) {
 			if (predicateValidator.canValidate(token)) {
 				return predicateValidator.getTokenValidator().validate(token);
 			}
 		}
 
-		return Promise.value(Optional.empty());
+		return Promise.value(ValidateTokenResult.ERROR_CASE);
 	}
 }

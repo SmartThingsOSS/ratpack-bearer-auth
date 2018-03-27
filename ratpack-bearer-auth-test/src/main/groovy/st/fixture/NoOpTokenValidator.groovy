@@ -1,8 +1,9 @@
 package st.fixture
 
 import ratpack.exec.Promise
-import st.ratpack.auth.DefaultOAuthToken
-import st.ratpack.auth.OAuthToken
+import st.ratpack.auth.DefaultValidateTokenResult
+import st.ratpack.auth.ValidateTokenResult
+import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.TokenValidator
 
 /**
@@ -29,10 +30,10 @@ class NoOpTokenValidator implements TokenValidator {
 	}
 
 	@Override
-	Promise<Optional<OAuthToken>> validate(String token) {
+	Promise<ValidateTokenResult> validate(String token) {
 		if (token.contains("service")) {
-			return Promise.value(Optional.of(new DefaultOAuthToken('faketoken', 'fake client', ['service'] as Set<String>, [:])))
+			return Promise.value(ValidateTokenResult.valid(new DefaultOAuthToken('faketoken', 'fake client', ['service'] as Set<String>, [:])))
 		}
-		return Promise.value(Optional.of(new DefaultOAuthToken('faketoken', 'fake client', ['mobile'] as Set<String>, info)))
+		return Promise.value(ValidateTokenResult.valid(new DefaultOAuthToken('faketoken', 'fake client', ['mobile'] as Set<String>, info)))
 	}
 }

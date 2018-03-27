@@ -7,7 +7,8 @@ import ratpack.exec.Promise;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 import ratpack.registry.Registry;
-import st.ratpack.auth.DefaultUser;
+import st.ratpack.auth.ValidateTokenResult;
+import st.ratpack.auth.internal.DefaultUser;
 import st.ratpack.auth.OAuthToken;
 import st.ratpack.auth.TokenValidator;
 import st.ratpack.auth.User;
@@ -37,19 +38,20 @@ public class CookieAuthHandler implements Handler {
 
 		if (authCookie.isPresent()) {
 			LOG.debug("Found " + tokenCookieName + " cookie and now attempting to validate.");
-			Promise<Optional<OAuthToken>> optionalToken = validator.validate(authCookie.get().value());
+			Promise<ValidateTokenResult> optionalToken = validator.validate(authCookie.get().value());
 			optionalToken
 				.onError(throwable -> {
 					LOG.debug("Error validating " + tokenCookieName + " cookie.", throwable);
 					ctx.next();
 				})
-				.then((oAuthToken) -> {
-					if (oAuthToken.isPresent()) {
+				.then((validateTokenResult) -> {
+					if (validateTokenResult.isValid()) {
 						LOG.debug(tokenCookieName + " cookie is valid.");
 						ctx.next(Registry.of(registrySpec -> {
-							OAuthToken authToken = oAuthToken.get();
+							OAuthToken authToken = validateTokenResult.getOAuthToken();
 							// Add the oauth token object to the registry
 							registrySpec.add(authToken);
+							registrySpec.add(validateTokenResult);
 
 							if (authToken.isUserToken()) {
 								DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);

@@ -4,7 +4,9 @@ import io.netty.handler.codec.http.HttpHeaderNames
 import ratpack.exec.Promise
 import spock.lang.Specification
 import spock.lang.Unroll
-import st.ratpack.auth.DefaultOAuthToken
+import st.ratpack.auth.DefaultValidateTokenResult
+import st.ratpack.auth.ValidateTokenResult
+import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
 import st.ratpack.auth.TokenValidator
 
@@ -23,7 +25,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> Promise.value(Optional.of(oAuthToken))
+		1 * tokenValidator.validate("Token") >> Promise.value(ValidateTokenResult.valid(oAuthToken))
 		result.getRegistry().maybeGet(OAuthToken).present
 		result.calledNext
 	}
@@ -57,7 +59,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		}
 
 		then:
-		1 * tokenValidator.validate("Token") >> Promise.value(Optional.empty())
+		1 * tokenValidator.validate("Token") >> Promise.value(ValidateTokenResult.INVALID_CASE)
 
 		!result.getRegistry().maybeGet(OAuthToken).present
 		result.calledNext

@@ -5,7 +5,8 @@ import ratpack.exec.Promise;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 import ratpack.registry.Registry;
-import st.ratpack.auth.DefaultUser;
+import st.ratpack.auth.ValidateTokenResult;
+import st.ratpack.auth.internal.DefaultUser;
 import st.ratpack.auth.OAuthToken;
 import st.ratpack.auth.TokenValidator;
 import st.ratpack.auth.User;
@@ -16,7 +17,7 @@ import java.util.Optional;
 
 public class BearerTokenAuthHandler implements Handler {
 
-	TokenValidator validator;
+	private TokenValidator validator;
 
 	public BearerTokenAuthHandler(TokenValidator validator) {
 		this.validator = validator;
@@ -30,17 +31,19 @@ public class BearerTokenAuthHandler implements Handler {
 			List<String> parts = Arrays.asList(authHeader.trim().split(" "));
 			if (parts.size() == 2) {
 				String token = parts.get(1);
-				Promise<Optional<OAuthToken>> optionalToken = validator.validate(token);
+				Promise<ValidateTokenResult> optionalToken = validator.validate(token);
 				optionalToken
 					.onError(t -> {
 						ctx.next();
 					})
-					.then((oAuthToken) -> {
-						if (oAuthToken.isPresent()) {
+					.then((validateTokenResult) -> {
+						if (validateTokenResult.isValid()) {
 							ctx.next(Registry.of(registrySpec -> {
-								OAuthToken authToken = oAuthToken.get();
+
+								OAuthToken authToken = validateTokenResult.getOAuthToken();
 								// Add the oauth token object to the registry
 								registrySpec.add(authToken);
+								registrySpec.add(validateTokenResult);
 
 								if (authToken.isUserToken()) {
 									DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);

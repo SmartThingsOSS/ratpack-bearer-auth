@@ -21,6 +21,9 @@ class SpringSecCheckTokenStub {
 							println "Check_token stub got " + token
 							if (token == "fakeToken") {
 								render """{"exp":1438842239,"uuid":"abcd","user_name":"beckje01","authorities":["ROLE_CONSOLE","ROLE_USER"],"client_id":"clientapp","scope":["mobile","read"]}"""
+							} else if (token == "slowToken") {
+								response.status(520)
+								response.send()
 							} else {
 								response.status(401)
 								response.send()

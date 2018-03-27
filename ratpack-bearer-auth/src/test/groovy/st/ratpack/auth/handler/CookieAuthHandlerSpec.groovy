@@ -6,7 +6,9 @@ import ratpack.test.handling.RequestFixture
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
-import st.ratpack.auth.DefaultOAuthToken
+import st.ratpack.auth.DefaultValidateTokenResult
+import st.ratpack.auth.ValidateTokenResult
+import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
 import st.ratpack.auth.TokenValidator
 import st.ratpack.auth.User
@@ -23,26 +25,26 @@ class CookieAuthHandlerSpec extends Specification {
 		validator = Mock(TokenValidator)
 		cookieAuthHandler = new CookieAuthHandler("JTKN", validator)
 		requestFixture = RequestFixture.requestFixture()
-			.registry { reg ->
-				reg.add(TokenValidator, validator)
+				.registry { reg ->
+			reg.add(TokenValidator, validator)
 		}
 	}
 
 	def 'Should set user when successfully finding user details from the cookie value'() {
 		given:
 		OAuthToken token = new DefaultOAuthToken('authToken', 'clientId', [] as Set, [
-			fullName: 'Darth Vader',
-			user_name: 'darth',
-			authorities: ['admin', 'test']
+				fullName   : 'Darth Vader',
+				user_name  : 'darth',
+				authorities: ['admin', 'test']
 		]);
 
 		when:
 		HandlingResult result = requestFixture
-			.header('Cookie', 'JTKN=authToken')
-			.handle(cookieAuthHandler)
+				.header('Cookie', 'JTKN=authToken')
+				.handle(cookieAuthHandler)
 
 		then:
-		1 * validator.validate('authToken') >> Promise.value(Optional.of(token))
+		1 * validator.validate('authToken') >> Promise.value(ValidateTokenResult.valid(token))
 		0 * _
 
 		User user = result.getRegistry().get(User);
@@ -56,7 +58,7 @@ class CookieAuthHandlerSpec extends Specification {
 	def 'Should not set user when the cookie is not found'() {
 		when:
 		HandlingResult result = requestFixture
-			.handle(cookieAuthHandler)
+				.handle(cookieAuthHandler)
 
 		then:
 		0 * _
@@ -70,12 +72,12 @@ class CookieAuthHandlerSpec extends Specification {
 
 		when:
 		HandlingResult result = requestFixture
-			.header('Cookie', 'JTKN=authToken')
-			.handle(cookieAuthHandler)
+				.header('Cookie', 'JTKN=authToken')
+				.handle(cookieAuthHandler)
 
 		then:
 		1 * validator.validate('authToken') >>
-			Promise.value(Optional.empty())
+				Promise.value(ValidateTokenResult.INVALID_CASE)
 		0 * _
 
 		assert !result.getRegistry().maybeGet(OAuthToken).present

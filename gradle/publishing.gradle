@@ -9,7 +9,7 @@ task sourceJar(type: Jar) {
 }
 
 if (isSnapshot) {
-	if (project.hasProperty('smartThingsArtifactoryUserName')) {
+	if (project.hasProperty('smartThingsUserName')) {
 		publishing {
 			publications {
 				main(MavenPublication) {
@@ -20,10 +20,10 @@ if (isSnapshot) {
 			repositories {
 				maven {
 					credentials {
-						username smartThingsArtifactoryUserName
-						password smartThingsArtifactoryPassword
+						username smartThingsUserName
+						password smartThingsPassword
 					}
-					url "https://artifactory.smartthings.com/libs-snapshot-local"
+					url "https://smartthings.jfrog.io/smartthings/libs-snapshot-local"
 				}
 			}
 		}

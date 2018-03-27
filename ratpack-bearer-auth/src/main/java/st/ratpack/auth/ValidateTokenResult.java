@@ -7,7 +7,7 @@ public interface ValidateTokenResult {
 	OAuthToken getOAuthToken();
 
 	default Boolean isErrorResult() {
-		return this.getStatus().equals(Status.UNKNOWN);
+		return Status.UNKNOWN.equals(this.getStatus());
 	}
 
 	default Boolean isValid() {

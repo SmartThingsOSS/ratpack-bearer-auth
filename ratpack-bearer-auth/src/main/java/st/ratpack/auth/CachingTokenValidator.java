@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.exec.Promise;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class CachingTokenValidator implements TokenValidator {
@@ -23,9 +22,9 @@ public class CachingTokenValidator implements TokenValidator {
 	public CachingTokenValidator(TokenValidator upstreamValidator, Long maximumSize, Long expiration, TimeUnit expirationUnit) {
 		this.upstreamValidator = upstreamValidator;
 
-		cache = Caffeine.<String, Promise<ValidateTokenResult>>newBuilder()
+		cache = Caffeine.newBuilder()
 				.maximumSize(maximumSize)
-				.expireAfterWrite(expiration, TimeUnit.MINUTES)
+				.expireAfterWrite(expiration, expirationUnit)
 				//			.executor(Execution.current().getEventLoop())  Don't do this it makes Ratpack hang.
 				.build(this::loadCache);
 	}
@@ -38,20 +37,16 @@ public class CachingTokenValidator implements TokenValidator {
 	private Promise<ValidateTokenResult> loadCache(String token) {
 
 		//Make sure we only call the validate on the upstream once
-		Promise<ValidateTokenResult> promiseOAuthToken = upstreamValidator.validate(token).cache();
-
-		promiseOAuthToken
-				.onError(e -> cache.invalidate(token))
+		Promise<ValidateTokenResult> promiseOAuthToken = upstreamValidator.validate(token)
+				.onError(e -> logger.error("upstream validator error", e))
 				.map(validateTokenResult -> {
 					//This will ignore any error cases but allow for caching of invalid tokens
-					if (validateTokenResult.isErrorResult()) {
-						return null;
-					} else {
-						return validateTokenResult;
-					}
+					ValidateTokenResult result = validateTokenResult.isErrorResult() ?
+							null : validateTokenResult;
+					logger.trace("PUTTING: {}", result);
+					return result;
 				})
-				.onNull(() -> cache.invalidate(token))
-				.then(o -> logger.trace("PUTTING: {}", o));
+				.cache();
 
 		return promiseOAuthToken;
 	}

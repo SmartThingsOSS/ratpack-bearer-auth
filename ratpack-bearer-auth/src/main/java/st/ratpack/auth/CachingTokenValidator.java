@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.exec.Promise;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class CachingTokenValidator implements TokenValidator {
@@ -23,9 +22,9 @@ public class CachingTokenValidator implements TokenValidator {
 	public CachingTokenValidator(TokenValidator upstreamValidator, Long maximumSize, Long expiration, TimeUnit expirationUnit) {
 		this.upstreamValidator = upstreamValidator;
 
-		cache = Caffeine.<String, Promise<ValidateTokenResult>>newBuilder()
+		cache = Caffeine.newBuilder()
 				.maximumSize(maximumSize)
-				.expireAfterWrite(expiration, TimeUnit.MINUTES)
+				.expireAfterWrite(expiration, expirationUnit)
 				//			.executor(Execution.current().getEventLoop())  Don't do this it makes Ratpack hang.
 				.build(this::loadCache);
 	}

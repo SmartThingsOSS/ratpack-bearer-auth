@@ -27,6 +27,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		then:
 		1 * tokenValidator.validate("Token") >> Promise.value(ValidateTokenResult.valid(oAuthToken))
 		result.getRegistry().maybeGet(OAuthToken).present
+		result.getRegistry().maybeGet(ValidateTokenResult).present
 		result.calledNext
 	}
 
@@ -39,6 +40,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 
 		then:
 		!result.getRegistry().maybeGet(OAuthToken).present
+		!result.getRegistry().maybeGet(ValidateTokenResult).present
 		result.calledNext
 
 		where:
@@ -62,6 +64,7 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		1 * tokenValidator.validate("Token") >> Promise.value(ValidateTokenResult.INVALID_CASE)
 
 		!result.getRegistry().maybeGet(OAuthToken).present
+		result.getRegistry().maybeGet(ValidateTokenResult).present
 		result.calledNext
 	}
 }

@@ -53,7 +53,7 @@ public class BearerTokenAuthHandler implements Handler {
 
 							}));
 						} else {
-							ctx.next();
+							ctx.next(Registry.single(validateTokenResult));
 						}
 					});
 			} else {

@@ -1,6 +1,8 @@
 package st.ratpack.auth;
 
-public interface ValidateTokenResult {
+import java.io.Serializable;
+
+public interface ValidateTokenResult extends Serializable {
 
 	Status getStatus();
 

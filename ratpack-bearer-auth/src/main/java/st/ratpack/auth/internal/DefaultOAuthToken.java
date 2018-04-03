@@ -6,6 +6,7 @@ import java.util.*;
 
 public class DefaultOAuthToken implements OAuthToken {
 
+	private static final long serialVersionUID = -1236874447952674147L;
 	private final String authToken;
 	private final String clientId;
 	private final Set<String> scope;

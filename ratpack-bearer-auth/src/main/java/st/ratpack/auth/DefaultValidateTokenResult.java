@@ -3,6 +3,7 @@ package st.ratpack.auth;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DefaultValidateTokenResult implements ValidateTokenResult {
 
+	private static final long serialVersionUID = -5854494612337946027L;
 	private Status status;
 	private OAuthToken oAuthToken;
 

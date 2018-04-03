@@ -1,10 +1,10 @@
 package st.ratpack.auth;
 
+import java.io.Serializable;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
-public interface OAuthToken {
+public interface OAuthToken extends Serializable {
 
 	Set<String> getScope();
 

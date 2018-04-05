@@ -35,4 +35,27 @@ class NoOpTokenValidatorSpec extends Specification {
 		'service' |  false
 		'blargh'  |  true
 	}
+
+	@Unroll
+	void "it should provide a no-op validation test fixuture with overrode scopes [ token : #token, isUserToken: #isUserToken, scope: #scope"() {
+		given:
+		TokenValidator validator = new NoOpTokenValidator(scope)
+
+		when:
+		ExecResult<ValidateTokenResult> result = harness.yield {
+			return validator.validate(token)
+		}
+
+		then:
+		assert result.getValueOrThrow().isValid()
+		with(result.getValueOrThrow().getOAuthToken(), { OAuthToken token ->
+			assert token.scope == scope
+		})
+
+		where:
+		token     |  scope
+		'service' |  ['test']  as Set<String>
+		'mobile'  |  ['test2'] as Set<String>
+	}
+
 }

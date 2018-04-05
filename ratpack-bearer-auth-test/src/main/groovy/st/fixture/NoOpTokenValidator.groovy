@@ -32,7 +32,12 @@ class NoOpTokenValidator implements TokenValidator {
 	@Override
 	Promise<ValidateTokenResult> validate(String token) {
 		if (token.contains("service")) {
-			return Promise.value(ValidateTokenResult.valid(new DefaultOAuthToken('faketoken', 'fake client', ['service'] as Set<String>, [:])))
+			if (token.contains("gdpr")) {
+				return Promise.value(ValidateTokenResult.valid(new DefaultOAuthToken('faketoken', 'fake client', ['service:gdpr'] as Set<String>, [:])))
+			}
+			else {
+				return Promise.value(ValidateTokenResult.valid(new DefaultOAuthToken('faketoken', 'fake client', ['service'] as Set<String>, [:])))
+			}
 		}
 		return Promise.value(ValidateTokenResult.valid(new DefaultOAuthToken('faketoken', 'fake client', ['mobile'] as Set<String>, info)))
 	}

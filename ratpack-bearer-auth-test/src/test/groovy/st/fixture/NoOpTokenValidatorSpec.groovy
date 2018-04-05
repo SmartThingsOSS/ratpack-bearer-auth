@@ -31,8 +31,10 @@ class NoOpTokenValidatorSpec extends Specification {
 		})
 
 		where:
-		token     |  isUserToken
-		'service' |  false
-		'blargh'  |  true
+		token          |  isUserToken
+		'service'      |  false
+		'service:gdpr' |  false
+		'gdpr'         |  true
+		'blargh'       |  true
 	}
 }

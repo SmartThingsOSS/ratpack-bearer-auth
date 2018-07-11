@@ -52,7 +52,7 @@ jobs:
 
       - run:
           name: Copy Test Results
-          command: find . -type f -name "*.xml" | grep "build/test-results" | xargs cp -t ./test-results/
+          command: find . -type f -name "*.xml" | grep "build/test-results" | xargs cp -t ~/test-results/
 
       - store_test_results:
           path: ~/test-results

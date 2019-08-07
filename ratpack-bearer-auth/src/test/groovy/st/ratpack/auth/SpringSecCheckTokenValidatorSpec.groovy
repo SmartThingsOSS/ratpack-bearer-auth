@@ -1,5 +1,6 @@
 package st.ratpack.auth
 
+import com.codahale.metrics.MetricRegistry
 import io.netty.buffer.UnpooledByteBufAllocator
 import ratpack.exec.ExecResult
 import ratpack.http.client.HttpClient
@@ -19,6 +20,9 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 	@Shared
 	EmbeddedApp springSec = SpringSecCheckTokenStub.stub
 
+	@Shared
+	MetricRegistry metricRegistry = new MetricRegistry()
+
 	@AutoCleanup
 	ExecHarness harness = ExecHarness.harness()
 
@@ -33,7 +37,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 				spec.byteBufAllocator(new UnpooledByteBufAllocator(false))
 				spec.maxContentLength(2000)
 			}
-			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
+			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf, metricRegistry)
 			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}
 
@@ -68,7 +72,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 				spec.byteBufAllocator(new UnpooledByteBufAllocator(false))
 				spec.maxContentLength(2000)
 			}
-			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
+			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf, metricRegistry)
 			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}
 
@@ -95,7 +99,7 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 				spec.byteBufAllocator(new UnpooledByteBufAllocator(false))
 				spec.maxContentLength(2000)
 			}
-			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf)
+			tokenProvider = new SpringSecCheckTokenProvider(httpClientToSpringSec, conf, metricRegistry)
 			tokenValidator = new SpringSecCheckTokenValidator(tokenProvider)
 		}
 

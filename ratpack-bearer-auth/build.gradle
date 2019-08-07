@@ -2,6 +2,7 @@ dependencies {
   compile "org.slf4j:slf4j-api:${slf4jVersion}"
   compile "io.ratpack:ratpack-core:${ratpackVersion}"
   compile "io.ratpack:ratpack-guice:${ratpackVersion}"
+  compile "com.codahale.metrics:metrics-json:3.0.2"
 
   //Caching Impl
   compile 'com.github.ben-manes.caffeine:caffeine:2.5.6'

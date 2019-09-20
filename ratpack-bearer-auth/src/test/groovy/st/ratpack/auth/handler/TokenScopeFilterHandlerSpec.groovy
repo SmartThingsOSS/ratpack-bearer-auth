@@ -2,8 +2,8 @@ package st.ratpack.auth.handler
 
 import spock.lang.Specification
 import spock.lang.Unroll
-import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
+import st.ratpack.auth.internal.DefaultOAuthToken
 
 import static ratpack.groovy.test.handling.GroovyRequestFixture.handle
 
@@ -15,7 +15,7 @@ class TokenScopeFilterHandlerSpec extends Specification {
 		OAuthToken oauthToken =
 				new DefaultOAuthToken.Builder()
 		          .setScope(tokenScopes)
-		          .build();
+		          .build()
 
 		when:
 		def result = handle(new TokenScopeFilterHandler((String[])scopes.toArray())) {

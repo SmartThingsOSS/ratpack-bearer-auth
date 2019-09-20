@@ -81,9 +81,6 @@ class SpringSecCheckTokenValidatorSpec extends Specification {
 		!result.getValueOrThrow().isValid()
 
 	}
-
-
-
 	def "Check error token"() {
 		given:
 		def conf = new SpringSecCheckAuthModule.Config(host: springSec.getAddress(), user: "fake", password: "pass")

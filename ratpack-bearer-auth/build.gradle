@@ -7,6 +7,7 @@ dependencies {
   compile 'com.github.ben-manes.caffeine:caffeine:2.5.6'
 
   testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+  testCompile 'com.github.tomakehurst:wiremock-standalone:2.20.0'
   testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
   testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
   testRuntime 'cglib:cglib-nodep:3.2.5'

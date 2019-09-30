@@ -23,6 +23,8 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 		private URI host;
 		private String user;
 		private String password;
+		private int connectRetries = 2;
+		private long backoff = 200;
 
 		public URI getHost() {
 			return host;
@@ -35,6 +37,24 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 		public String getUser() {
 			return user;
 		}
+
+		public int getConnectRetries() {
+			return connectRetries;
+		}
+
+		public long getBackoff() {
+			return backoff;
+		}
+
+		public void setBackoff(long backoff) {
+			this.backoff = backoff;
+		}
+
+		public void setConnectRetries(int retries) {
+			this.connectRetries = retries;
+		}
+
+
 
 		public void setUser(String user) {
 			this.user = user;

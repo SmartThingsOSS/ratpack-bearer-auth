@@ -35,7 +35,9 @@ public class DefaultOAuthToken implements OAuthToken {
 	}
 
 	@Override
-	public String getValue() { return authToken; }
+	public String getValue() {
+		return (String) additionalInformation.getOrDefault("forward_token", authToken);
+	}
 
 	@Override
 	public Map<String, Object> getAdditionalInformation() {

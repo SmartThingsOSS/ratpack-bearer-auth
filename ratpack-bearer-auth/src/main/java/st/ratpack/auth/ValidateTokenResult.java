@@ -16,6 +16,10 @@ public interface ValidateTokenResult extends Serializable {
 		return this.getStatus().equals(Status.VALID);
 	}
 
+	default Boolean isCacheable() {
+		return true;
+	}
+
 	static ValidateTokenResult valid(OAuthToken oAuthToken) {
 		return new DefaultValidateTokenResult(Status.VALID, oAuthToken);
 	}

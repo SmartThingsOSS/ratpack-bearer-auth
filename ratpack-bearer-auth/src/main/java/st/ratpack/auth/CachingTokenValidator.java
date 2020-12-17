@@ -49,8 +49,14 @@ public class CachingTokenValidator implements TokenValidator {
 						return validateTokenResult;
 					}
 				})
-				.onNull(() -> cache.invalidate(token))
-				.then(o -> logger.trace("PUTTING: {}", o));
+				.then(validateTokenResult -> {
+							if (validateTokenResult == null || !validateTokenResult.isCacheable()) {
+								cache.invalidate(token);
+							} else {
+								logger.trace("PUTTING: {}", validateTokenResult);
+							}
+						}
+				);
 
 		return promiseOAuthToken;
 	}

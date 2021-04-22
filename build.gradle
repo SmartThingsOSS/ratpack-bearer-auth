@@ -4,7 +4,6 @@ buildscript {
 	}
 	dependencies {
 		classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
-		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 	}
 }
 

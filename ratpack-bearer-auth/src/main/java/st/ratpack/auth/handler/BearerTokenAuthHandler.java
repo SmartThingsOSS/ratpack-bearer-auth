@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import ratpack.exec.Promise;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
+import ratpack.handling.UserId;
 import ratpack.registry.Registry;
 import st.ratpack.auth.ValidateTokenResult;
 import st.ratpack.auth.internal.DefaultUser;
@@ -48,7 +49,9 @@ public class BearerTokenAuthHandler implements Handler {
 								if (authToken.isUserToken()) {
 									DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);
 									User user = builder.build();
+									UserId userId = UserId.of(user.getAdditionalInformation().get("uuid").toString());
 									registrySpec.add(user);
+									registrySpec.add(userId);
 								}
 
 							}));

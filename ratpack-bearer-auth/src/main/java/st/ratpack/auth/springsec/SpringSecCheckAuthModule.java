@@ -1,10 +1,16 @@
 package st.ratpack.auth.springsec;
 
-import com.google.inject.*;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import com.google.inject.multibindings.OptionalBinder;
 import ratpack.guice.ConfigurableModule;
-import ratpack.http.client.HttpClient;
-import st.ratpack.auth.*;
+import st.ratpack.auth.CachingTokenValidator;
+import st.ratpack.auth.TokenProvider;
+import st.ratpack.auth.TokenValidator;
+import st.ratpack.auth.handler.BearerTokenAuthHandler;
+import st.ratpack.auth.handler.RequireAuthHandler;
 
 import java.net.URI;
 
@@ -12,11 +18,12 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 
 	@Override
 	protected void configure() {
+		bind(RequireAuthHandler.class).in(Scopes.SINGLETON);
 		OptionalBinder.newOptionalBinder(binder(), TokenProvider.class)
-			.setDefault().to(SpringSecCheckTokenProvider.class).in(Scopes.SINGLETON);
+				.setDefault().to(SpringSecCheckTokenProvider.class).in(Scopes.SINGLETON);
 
 		OptionalBinder.newOptionalBinder(binder(), TokenValidator.class)
-			.setDefault().toProvider(TokenValidatorProvider.class).in(Scopes.SINGLETON);
+				.setDefault().toProvider(TokenValidatorProvider.class).in(Scopes.SINGLETON);
 	}
 
 	public static class Config {
@@ -55,7 +62,6 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 		}
 
 
-
 		public void setUser(String user) {
 			this.user = user;
 		}
@@ -84,4 +90,8 @@ public class SpringSecCheckAuthModule extends ConfigurableModule<SpringSecCheckA
 		}
 	}
 
+	@Provides
+	public BearerTokenAuthHandler defaultBearerTokenAuthHandler(TokenValidator validator) {
+		return new BearerTokenAuthHandler(validator);
+	}
 }

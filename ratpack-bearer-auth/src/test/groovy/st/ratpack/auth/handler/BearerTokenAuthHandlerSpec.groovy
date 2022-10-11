@@ -2,9 +2,11 @@ package st.ratpack.auth.handler
 
 import io.netty.handler.codec.http.HttpHeaderNames
 import ratpack.exec.Promise
+import ratpack.handling.UserId
 import spock.lang.Specification
 import spock.lang.Unroll
 import st.ratpack.auth.DefaultValidateTokenResult
+import st.ratpack.auth.User
 import st.ratpack.auth.ValidateTokenResult
 import st.ratpack.auth.internal.DefaultOAuthToken
 import st.ratpack.auth.OAuthToken
@@ -17,7 +19,10 @@ class BearerTokenAuthHandlerSpec extends Specification {
 	def "Should set OAuthToken on valid token"() {
 		given:
 		def tokenValidator = Mock(TokenValidator)
-		def oAuthToken = new DefaultOAuthToken.Builder().build()
+		def oAuthToken = new DefaultOAuthToken.Builder().setAdditionalInformation([
+				"user_name": "kenny.powers@smartthings.com",
+				"uuid"     : UUID.randomUUID().toString()
+		]) build()
 
 		when:
 		def result = handle(new BearerTokenAuthHandler(tokenValidator)) {
@@ -28,6 +33,8 @@ class BearerTokenAuthHandlerSpec extends Specification {
 		1 * tokenValidator.validate("Token") >> Promise.value(ValidateTokenResult.valid(oAuthToken))
 		result.getRegistry().maybeGet(OAuthToken).present
 		result.getRegistry().maybeGet(ValidateTokenResult).present
+		result.getRegistry().maybeGet(User).present
+		result.getRegistry().maybeGet(UserId).present
 		result.calledNext
 	}
 
@@ -45,9 +52,9 @@ class BearerTokenAuthHandlerSpec extends Specification {
 
 		where:
 		authHeader << [
-			"",
-			"Basic BLAH",
-			"Bearer Token Something"
+				"",
+				"Basic BLAH",
+				"Bearer Token Something"
 		]
 	}
 

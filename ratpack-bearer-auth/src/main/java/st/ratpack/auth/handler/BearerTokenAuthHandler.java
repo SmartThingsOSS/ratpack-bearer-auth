@@ -49,9 +49,11 @@ public class BearerTokenAuthHandler implements Handler {
 								if (authToken.isUserToken()) {
 									DefaultUser.Builder  builder = new DefaultUser.Builder(authToken);
 									User user = builder.build();
-									UserId userId = UserId.of(user.getAdditionalInformation().get("uuid").toString());
 									registrySpec.add(user);
-									registrySpec.add(userId);
+									if (user.getAdditionalInformation().containsKey("uuid")) {
+										UserId userId = UserId.of(user.getAdditionalInformation().get("uuid").toString());
+										registrySpec.add(userId);
+									}
 								}
 
 							}));

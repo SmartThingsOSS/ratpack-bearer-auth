@@ -1,8 +1,15 @@
 dependencies {
-	compile project(':ratpack-bearer-auth')
-	compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
-	testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
-	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
-	testRuntime 'cglib:cglib-nodep:3.2.5'
-	testRuntime 'org.objenesis:objenesis:2.6'
+	implementation platform("com.fasterxml.jackson:jackson-bom:$jacksonVersion")
+
+	implementation project(':ratpack-bearer-auth')
+	implementation "org.codehaus.groovy:groovy-all:${groovyVersion}"
+	implementation "io.ratpack:ratpack-core:${ratpackVersion}"
+	testImplementation "io.ratpack:ratpack-test:${ratpackVersion}"
+	testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+	testRuntimeOnly("net.bytebuddy:byte-buddy:1.18.11")
+	testRuntimeOnly("org.objenesis:objenesis:3.5")
+}
+
+test {
+	useJUnitPlatform()
 }

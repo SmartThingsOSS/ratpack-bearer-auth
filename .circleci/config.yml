@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/openjdk:8-jdk-browsers
+    - image: cimg/openjdk:17.0
   environment:
     GRADLE_USER_HOME: ~/repo/.gradle
 
@@ -112,6 +112,3 @@ workflows:
           filters:
             branches:
               only: release
-
-
-

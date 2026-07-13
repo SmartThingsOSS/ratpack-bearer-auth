@@ -26,8 +26,8 @@ class NoOpTokenValidatorSpec extends Specification {
 
 		then:
 		result.isValid()
-		with(result.getOAuthToken(), { OAuthToken token ->
-			assert token.isUserToken() == isUserToken
+		with(result.getOAuthToken(), { OAuthToken oauthToken ->
+			assert oauthToken.isUserToken() == isUserToken
 		})
 
 		where:
@@ -48,9 +48,9 @@ class NoOpTokenValidatorSpec extends Specification {
 
 		then:
 		result.isValid()
-		with(result.getOAuthToken(), { OAuthToken token ->
-			assert token.isUserToken() == isUserToken
-			assert token.additionalInformation == expectedInfo
+		with(result.getOAuthToken(), { oauthToken ->
+			assert oauthToken.isUserToken() == isUserToken
+			assert oauthToken.additionalInformation == expectedInfo
 		})
 
 		where:
@@ -61,7 +61,7 @@ class NoOpTokenValidatorSpec extends Specification {
 
 	def "custom validation can be injected"() {
 		given:
-		TokenValidator validator = new NoOpTokenValidator({ token ->
+		TokenValidator validator = new NoOpTokenValidator({ oauthToken ->
 			if (token.contains('test')) {
 				OAuthToken oAuthToken = new DefaultOAuthToken.Builder()
 						.setAuthToken("testtoken")
@@ -82,11 +82,11 @@ class NoOpTokenValidatorSpec extends Specification {
 		then:
 		assert result.status == status
 		if (result.isValid()) {
-			with(result.getOAuthToken(), { OAuthToken token ->
-				assert token.isUserToken()
-				assert token.value == "testtoken"
-				assert token.clientId == "test client"
-				assert token.scope.contains('test')
+			with(result.getOAuthToken(), { OAuthToken oauthToken ->
+				assert oauthToken.isUserToken()
+				assert oauthToken.value == "testtoken"
+				assert oauthToken.clientId == "test client"
+				assert oauthToken.scope.contains('test')
 			})
 		}
 

@@ -1,7 +1,7 @@
 machine:
   java:
     version:
-      oraclejdk8
+      openjdk17
 
 dependencies:
   override:

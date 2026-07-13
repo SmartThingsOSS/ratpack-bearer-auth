@@ -1,19 +1,30 @@
 buildscript {
 	repositories {
-		jcenter()
-	}
-	dependencies {
-		classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+		mavenCentral()
 	}
 }
 
-def jvmEncoding = java.nio.charset.Charset.defaultCharset().name()
-if (jvmEncoding != "UTF-8") {
-	throw new IllegalStateException("Build environment must be UTF-8 (it is: $jvmEncoding) - add '-Dfile.encoding=UTF-8' to the GRADLE_OPTS environment variable ")
+plugins {
+	id 'com.github.ben-manes.versions' version '0.51.0'
 }
 
-if (!JavaVersion.current().java8Compatible) {
-	throw new IllegalStateException("Must be built with Java 8 or higher")
+allprojects {
+	apply plugin: 'java-library'
+
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(17)
+		}
+	}
+
+	project.ext {
+		javaVersion = JavaVersion.VERSION_17
+	}
+
+	if (!JavaVersion.current().isCompatibleWith(project.ext.javaVersion)) {
+		throw new IllegalStateException("Must be built with Java ${project.ext.javaVersion} or higher (found: ${JavaVersion.current()})")
+	}
+
 }
 
 subprojects {
@@ -29,17 +40,14 @@ subprojects {
 	apply plugin: 'com.github.ben-manes.versions'
 	apply from: rootProject.file('gradle/publishing.gradle')
 
-	sourceCompatibility = "1.8"
-	targetCompatibility = "1.8"
-
 	jacocoTestReport {
 		reports {
-			xml.enabled true
+			xml.required = true
 		}
 	}
 
 	repositories {
-		jcenter()
+		mavenCentral()
 	}
 
 }

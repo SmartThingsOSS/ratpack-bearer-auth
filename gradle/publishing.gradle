@@ -1,34 +1,30 @@
 apply plugin: "maven-publish"
 
-ext.isSnapshot = version.endsWith("SNAPSHOT")
-
-task sourceJar(type: Jar) {
-  classifier "sources"
-  from sourceSets.main.allJava
+java {
+	withJavadocJar()
+	withSourcesJar()
 }
 
 publishing {
-	
-	publications {
-		maven(MavenPublication) {
-			from components.java
-			artifact sourceJar			
-		}
-	}
-
 	repositories {
 		maven {
 			credentials {
-					username smartThingsUserName
-					password smartThingsPassword
+				username = smartThingsUserName
+				password = smartThingsPassword
 			}
-			if (isSnapshot) {
-				url "https://smartthingsoss.jfrog.io/artifactory/libs-snapshot-local"
-
+			if (version.toString().contains('SNAPSHOT')) {
+				url = "https://smartthings.jfrog.io/smartthings/libs-snapshot"
+				println("Publishing " + version + " to libs-snapshot")
 			} else {
-				url "https://smartthingsoss.jfrog.io/artifactory/libs-release-local"
+				url = "https://smartthings.jfrog.io/smartthings/libs-release"
+				println("Publishing " + version + " to libs-release")
 			}
 		}
 	}
 
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
 }
